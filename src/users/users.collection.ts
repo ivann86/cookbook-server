@@ -1,18 +1,16 @@
 import * as uuid from 'uuid';
-import bcrypt from 'bcrypt';
+import bcrypt, { compare } from 'bcrypt';
 import { validate } from './user.validator';
 
 export function UsersCollection(dataService: DataService): UsersCollection {
   async function create(newUser: NewUser) {
     const validated = validate(newUser as User);
-    console.log('Checking if username or email exists ');
     if (await usernameExists(validated.username)) {
       throw new Error('Username is taken');
     }
     if (await emailExists(validated.email)) {
       throw new Error('Email is registered');
     }
-    console.log('checked');
     const user: User = {
       id: uuid.v4(),
       username: validated.username,
@@ -45,6 +43,19 @@ export function UsersCollection(dataService: DataService): UsersCollection {
 
   async function remove(id: string) {
     return await dataService.remove(id);
+  }
+
+  async function authenticate(username: string, password: string) {
+    const result = await dataService.find({ username }, {});
+    if (result.length === 0) {
+      throw new Error('Incorrect username or password');
+    }
+    const hashedPassword = result[0].password!;
+    if (!(await bcrypt.compare(password, hashedPassword))) {
+      throw new Error('Incorrect username or password');
+    }
+
+    return validateAndFormat(result[0]);
   }
 
   async function usernameExists(username: string): Promise<Boolean> {
@@ -84,5 +95,6 @@ export function UsersCollection(dataService: DataService): UsersCollection {
     findById,
     update,
     remove,
+    authenticate,
   });
 }
