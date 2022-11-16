@@ -1,1 +1,1 @@
-export { session } from './auth.middleware';
+export { session } from './session.middleware';
