@@ -3,7 +3,11 @@ import bcrypt, { compare } from 'bcrypt';
 import { validate } from './user.validator';
 
 export function createUsersCollection(store: UsersStore): UsersCollection {
-  async function register(newUser: NewUser) {
+  async function register(newUser: {
+    username: string;
+    email: string;
+    password: string;
+  }) {
     const validated = validate(newUser as User);
     if (await usernameExists(validated.username)) {
       throw new Error('Username is taken');

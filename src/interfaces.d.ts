@@ -16,12 +16,6 @@ interface User {
   updatedAt?: Date;
 }
 
-interface NewUser {
-  username: string;
-  email: string;
-  password: string;
-}
-
 interface UsersCollection {
   register: (user: NewUser) => Promise<User>;
   findById: (id: string) => Promise<User>;
