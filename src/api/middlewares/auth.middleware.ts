@@ -1,6 +1,17 @@
 import jwt from 'jsonwebtoken';
 import { RequestHandler, Request, Response, NextFunction } from 'express';
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: User | null;
+    }
+    interface Response {
+      setTokenHeader?: Function;
+    }
+  }
+}
+
 export function authentication(
   jwtSecret: string,
   jwtExpiresIn: string
@@ -10,11 +21,13 @@ export function authentication(
       username: user.username,
       email: user.email,
     };
-    const token = jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn });
-    this.setHeader('Authorization', `Bearer ${token}`);
+    return jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn });
   }
 
-  return function (req: Request, res: any, next: NextFunction) {
-    res.setTokenHeader = generateToken;
+  return function (req: Request, res: Response, next: NextFunction) {
+    res.setTokenHeader = (user: User) => {
+      const token = generateToken(user);
+      res.setHeader('Authorization', `Bearer ${token}`);
+    };
   };
 }
