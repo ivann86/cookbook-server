@@ -1,4 +1,12 @@
-import express from 'express';
+import express, { RequestHandler } from 'express';
+
+declare global {
+  interface AuthController {
+    register: RequestHandler;
+    login: RequestHandler;
+    logout: RequestHandler;
+  }
+}
 
 export function authRouter(controller: AuthController) {
   const router = express.Router();

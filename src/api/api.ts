@@ -1,10 +1,21 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import { authController } from './controllers';
 import { authRouter } from './routers';
+import { session } from './middlewares';
 
-export function api(users: UsersCollection) {
+declare global {
+  interface ApiOptions {
+    jwtSecret: string;
+    jwtExpiresIn: string;
+  }
+}
+
+export function api(users: UsersCollection, options: ApiOptions) {
   const router = express.Router();
 
+  router.use(cookieParser());
+  router.use(session(users, options.jwtSecret, options.jwtExpiresIn));
   router.use(express.json());
   router.use('/auth', authRouter(authController(users)));
 

@@ -7,27 +7,46 @@ declare global {
       user?: User | null;
     }
     interface Response {
-      setTokenHeader?: Function;
+      createSession: (user: User) => void;
+      clearSession: () => void;
     }
   }
 }
 
-export function authentication(
+export function session(
+  users: UsersCollection,
   jwtSecret: string,
   jwtExpiresIn: string
 ): RequestHandler {
-  function generateToken(user: User) {
-    const payload = {
-      username: user.username,
-      email: user.email,
+  return async function (req: Request, res: Response, next: NextFunction) {
+    // Attach a method to send cookie with jwt
+    res.createSession = (user: User) => {
+      const payload = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      };
+      const token = jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn });
+      res.cookie('jwt', token, { httpOnly: true });
     };
-    return jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn });
-  }
 
-  return function (req: Request, res: Response, next: NextFunction) {
-    res.setTokenHeader = (user: User) => {
-      const token = generateToken(user);
-      res.setHeader('Authorization', `Bearer ${token}`);
+    // Atach a method to clear the jwt cookie
+    res.clearSession = () => {
+      res.clearCookie('jwt');
     };
+
+    // Check if client sent jwt cookie
+    if (!(req.cookies && 'jwt' in req.cookies)) {
+      return next();
+    }
+
+    try {
+      const payload = jwt.verify(req.cookies.jwt, jwtSecret) as any;
+      req.user = await users.findById(payload.id);
+      return next();
+    } catch (err) {
+      res.clearCookie('jwt');
+      return next();
+    }
   };
 }

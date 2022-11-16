@@ -10,7 +10,11 @@ import { createUsersStore } from './database';
 const PORT = process.env.PORT || 3000;
 
 const users = createUsersCollection(createUsersStore());
-const cookbookApi = api(users);
+
+const cookbookApi = api(users, {
+  jwtSecret: 'hf944s9ssaq',
+  jwtExpiresIn: '1d',
+});
 const app = express();
 
 app.use('/api/v1/', cookbookApi);
