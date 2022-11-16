@@ -10,7 +10,8 @@ import { dataService } from './database';
 const PORT = process.env.PORT || 3000;
 
 const userDataService = dataService();
-const cookbookApi = api(UsersCollection(userDataService));
+const usersCollection = UsersCollection(userDataService);
+const cookbookApi = api(usersCollection);
 const app = express();
 
 app.use('/api/v1/', cookbookApi);
