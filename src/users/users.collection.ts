@@ -2,7 +2,9 @@ import * as uuid from 'uuid';
 import bcrypt, { compare } from 'bcrypt';
 import { validate } from './user.validator';
 
-export function UsersCollection(dataService: DataService): UsersCollection {
+export function UsersCollection(
+  dataService: UsersDataService
+): UsersCollection {
   async function register(newUser: NewUser) {
     const validated = validate(newUser as User);
     if (await usernameExists(validated.username)) {
