@@ -1,4 +1,4 @@
-export function dataService(): DataService {
+export function dataService(): UsersDataService {
   const users: User[] = [];
 
   async function create(user: User) {

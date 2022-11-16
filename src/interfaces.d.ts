@@ -1,9 +1,13 @@
-interface DataService {
-  create: (user: User) => Promise<User>;
-  find: (filter: any, options: object) => Promise<User[]>;
-  update: (id: string, updatedUser: User) => Promise<User>;
+interface DataService<T> {
+  create: (user: T) => Promise<T>;
+  find: (filter: any, options: any) => Promise<T[]>;
+  update: (id: string, updatedUser: T) => Promise<T>;
   remove: (id: string) => Promise<Boolean>;
 }
+
+interface UsersDataExtras {}
+
+type UsersDataService = DataService<User> & UsersDataExtras;
 
 interface User {
   id?: string;
@@ -26,10 +30,4 @@ interface UsersCollection {
   update: (id: string, updatedInfo: any) => Promise<User>;
   remove: (id: string) => Promise<Boolean>;
   authenticate: (username: string, password: string) => Promise<User>;
-}
-
-interface AuthController {
-  register: import('express').RequestHandler;
-  login: import('express').RequestHandler;
-  logout: import('express').RequestHandler;
 }
