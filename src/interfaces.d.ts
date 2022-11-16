@@ -1,13 +1,11 @@
-interface DataService<T> {
+interface DataStore<T> {
   create: (user: T) => Promise<T>;
   find: (filter: any, options: any) => Promise<T[]>;
   update: (id: string, updatedUser: T) => Promise<T>;
   remove: (id: string) => Promise<Boolean>;
 }
 
-interface UsersDataExtras {}
-
-type UsersDataService = DataService<User> & UsersDataExtras;
+interface UsersStore extends DataStore<User> {}
 
 interface User {
   id?: string;

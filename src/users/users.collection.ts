@@ -2,9 +2,7 @@ import * as uuid from 'uuid';
 import bcrypt, { compare } from 'bcrypt';
 import { validate } from './user.validator';
 
-export function UsersCollection(
-  dataService: UsersDataService
-): UsersCollection {
+export function createUsersCollection(store: UsersStore): UsersCollection {
   async function register(newUser: NewUser) {
     const validated = validate(newUser as User);
     if (await usernameExists(validated.username)) {
@@ -22,11 +20,11 @@ export function UsersCollection(
       password: await encryptPassword(validated.password),
     };
 
-    return validateAndFormat(await dataService.create(user));
+    return validateAndFormat(await store.create(user));
   }
 
   async function findById(id: string) {
-    const results = await dataService.find({ id }, {});
+    const results = await store.find({ id }, {});
     if (results.length === 0) {
       throw new Error('No such user');
     }
@@ -40,15 +38,15 @@ export function UsersCollection(
     const currentUser = await findById(id);
     const newUser = validate(Object.assign(currentUser, updatedInfo));
     newUser.updatedAt = new Date();
-    return validateAndFormat(await dataService.update(id, newUser));
+    return validateAndFormat(await store.update(id, newUser));
   }
 
   async function remove(id: string) {
-    return await dataService.remove(id);
+    return await store.remove(id);
   }
 
   async function authenticate(username: string, password: string) {
-    const result = await dataService.find({ username }, {});
+    const result = await store.find({ username }, {});
     if (result.length === 0) {
       throw new Error('Incorrect username or password');
     }
@@ -61,7 +59,7 @@ export function UsersCollection(
   }
 
   async function usernameExists(username: string): Promise<Boolean> {
-    const results = await dataService.find({ username }, {});
+    const results = await store.find({ username }, {});
     if (results.length > 0) {
       return true;
     }
@@ -69,7 +67,7 @@ export function UsersCollection(
   }
 
   async function emailExists(email: string): Promise<Boolean> {
-    const results = await dataService.find({ email }, {});
+    const results = await store.find({ email }, {});
     if (results.length > 0) {
       return true;
     }

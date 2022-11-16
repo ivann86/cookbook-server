@@ -1,1 +1,1 @@
-export { dataService } from './data.service';
+export { createUsersStore } from './data.service';
