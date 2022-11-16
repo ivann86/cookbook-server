@@ -3,7 +3,7 @@ import bcrypt, { compare } from 'bcrypt';
 import { validate } from './user.validator';
 
 export function UsersCollection(dataService: DataService): UsersCollection {
-  async function create(newUser: NewUser) {
+  async function register(newUser: NewUser) {
     const validated = validate(newUser as User);
     if (await usernameExists(validated.username)) {
       throw new Error('Username is taken');
@@ -91,7 +91,7 @@ export function UsersCollection(dataService: DataService): UsersCollection {
   }
 
   return Object.freeze({
-    create,
+    register,
     findById,
     update,
     remove,

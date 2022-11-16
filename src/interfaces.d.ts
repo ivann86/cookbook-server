@@ -21,7 +21,7 @@ interface NewUser {
 }
 
 interface UsersCollection {
-  create: (user: NewUser) => Promise<User>;
+  register: (user: NewUser) => Promise<User>;
   findById: (id: string) => Promise<User>;
   update: (id: string, updatedInfo: any) => Promise<User>;
   remove: (id: string) => Promise<Boolean>;

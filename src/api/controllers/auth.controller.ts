@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 export function authController(users: UsersCollection) {
   async function register(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await users.create(req.body);
+      const result = await users.register(req.body);
       res.status(200).json(result);
     } catch (err) {
       console.log(err);
