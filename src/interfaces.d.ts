@@ -25,6 +25,7 @@ interface UsersCollection {
   findById: (id: string) => Promise<User>;
   update: (id: string, updatedInfo: any) => Promise<User>;
   remove: (id: string) => Promise<Boolean>;
+  authenticate: (username: string, password: string) => Promise<User>;
 }
 
 interface AuthController {
