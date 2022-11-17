@@ -1,11 +1,13 @@
 interface DataStore<T> {
   create: (user: T) => Promise<T>;
   find: (filter: any, options: any) => Promise<T[]>;
-  update: (id: string, updatedUser: T) => Promise<T>;
+  findOne: (filter: any, options: any) => Promise<T | null>;
+  updateOne: (filter: any, update: T) => Promise<T>;
+  updateMany: (filter: any, update: T) => Promise<T>;
   remove: (id: string) => Promise<Boolean>;
 }
 
-interface UsersStore extends DataStore<User> {}
+interface UsersDataStore extends DataStore<User> {}
 
 interface User {
   id?: string;
@@ -18,8 +20,9 @@ interface User {
 
 interface UsersCollection {
   register: (user: NewUser) => Promise<User>;
-  findById: (id: string) => Promise<User>;
+  getAll: (options: any) => Promise<User[]>;
+  getById: (id: string) => Promise<User>;
   update: (id: string, updatedInfo: any) => Promise<User>;
   remove: (id: string) => Promise<Boolean>;
-  authenticate: (username: string, password: string) => Promise<User>;
+  authenticate: (username: string, password: string) => Promise<string>;
 }

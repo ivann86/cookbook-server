@@ -1,8 +1,19 @@
 import * as uuid from 'uuid';
 import bcrypt, { compare } from 'bcrypt';
 import { validate } from './user.validator';
+import { generateToken } from './users.token';
 
-export function createUsersCollection(store: UsersStore): UsersCollection {
+declare global {
+  interface UsersCollectionOptions {
+    tokenSecret: string;
+    tokenExpirationPeriod: string;
+  }
+}
+
+export function createUsersCollection(
+  store: UsersDataStore,
+  options: UsersCollectionOptions
+): UsersCollection {
   async function register(newUser: {
     username: string;
     email: string;
@@ -27,7 +38,11 @@ export function createUsersCollection(store: UsersStore): UsersCollection {
     return validateAndFormat(await store.create(user));
   }
 
-  async function findById(id: string) {
+  async function getAll() {
+    return (await store.find({}, {})).map((user) => validateAndFormat(user));
+  }
+
+  async function getById(id: string) {
     const results = await store.find({ id }, {});
     if (results.length === 0) {
       throw new Error('No such user');
@@ -39,10 +54,10 @@ export function createUsersCollection(store: UsersStore): UsersCollection {
     if ('password' in updatedInfo) {
       delete updatedInfo.password;
     }
-    const currentUser = await findById(id);
+    const currentUser = await getById(id);
     const newUser = validate(Object.assign(currentUser, updatedInfo));
     newUser.updatedAt = new Date();
-    return validateAndFormat(await store.update(id, newUser));
+    return validateAndFormat(await store.updateOne({ id }, newUser));
   }
 
   async function remove(id: string) {
@@ -50,16 +65,22 @@ export function createUsersCollection(store: UsersStore): UsersCollection {
   }
 
   async function authenticate(username: string, password: string) {
-    const result = await store.find({ username }, {});
-    if (result.length === 0) {
+    const result = await store.findOne({ username }, {});
+    if (!result) {
       throw new Error('Incorrect username or password');
     }
-    const hashedPassword = result[0].password!;
+    const hashedPassword = result.password!;
     if (!(await bcrypt.compare(password, hashedPassword))) {
       throw new Error('Incorrect username or password');
     }
 
-    return validateAndFormat(result[0]);
+    const token = generateToken(
+      result,
+      options.tokenSecret,
+      options.tokenExpirationPeriod
+    );
+
+    return token;
   }
 
   async function usernameExists(username: string): Promise<Boolean> {
@@ -96,7 +117,8 @@ export function createUsersCollection(store: UsersStore): UsersCollection {
 
   return Object.freeze({
     register,
-    findById,
+    getAll,
+    getById,
     update,
     remove,
     authenticate,

@@ -1,4 +1,6 @@
-export function createUsersStore(): UsersStore {
+import { any } from 'joi';
+
+export function createUsersStore(): UsersDataStore {
   const users: User[] = [];
 
   async function create(user: User) {
@@ -6,6 +8,10 @@ export function createUsersStore(): UsersStore {
       users.push(user);
       resolve(user);
     });
+  }
+
+  async function findOne(filter: any, options: any) {
+    return new Promise<User>(() => {});
   }
 
   async function find(filter: any, options: object) {
@@ -24,7 +30,11 @@ export function createUsersStore(): UsersStore {
     });
   }
 
-  async function update(id: string, updatedUser: User) {
+  async function updateOne(filter: any, update: User) {
+    return new Promise<User>(() => {});
+  }
+
+  async function updateMany(filter: any, update: User) {
     return new Promise<User>(() => {});
   }
 
@@ -34,8 +44,10 @@ export function createUsersStore(): UsersStore {
 
   return Object.freeze({
     create,
+    findOne,
     find,
-    update,
+    updateOne,
+    updateMany,
     remove,
   });
 }
