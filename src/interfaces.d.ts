@@ -20,9 +20,9 @@ interface User {
 
 interface UsersCollection {
   register: (user: NewUser) => Promise<User>;
-  getAll: (options: any) => Promise<User[]>;
+  find: (filter: any, options: any) => Promise<User[]>;
   getById: (id: string) => Promise<User>;
   update: (id: string, updatedInfo: any) => Promise<User>;
   remove: (id: string) => Promise<Boolean>;
-  authenticate: (username: string, password: string) => Promise<string>;
+  authenticate: (username: string, password: string) => Promise<User>;
 }

@@ -1,4 +1,3 @@
-import { validateHeaderName } from 'http';
 import Joi from 'joi';
 
 const userSchema = Joi.object({

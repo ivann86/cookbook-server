@@ -1,19 +1,8 @@
-import * as uuid from 'uuid';
-import bcrypt, { compare } from 'bcrypt';
+import * as crypto from 'crypto';
+import bcrypt from 'bcrypt';
 import { validate } from './user.validator';
-import { generateToken } from './users.token';
 
-declare global {
-  interface UsersCollectionOptions {
-    tokenSecret: string;
-    tokenExpirationPeriod: string;
-  }
-}
-
-export function createUsersCollection(
-  store: UsersDataStore,
-  options: UsersCollectionOptions
-): UsersCollection {
+export function createUsersCollection(store: UsersDataStore): UsersCollection {
   async function register(newUser: {
     username: string;
     email: string;
@@ -27,7 +16,7 @@ export function createUsersCollection(
       throw new Error('Email is registered');
     }
     const user: User = {
-      id: uuid.v4(),
+      id: crypto.randomUUID(),
       username: validated.username,
       email: validated.email,
       createdAt: new Date(),
@@ -38,8 +27,10 @@ export function createUsersCollection(
     return validateAndFormat(await store.create(user));
   }
 
-  async function getAll() {
-    return (await store.find({}, {})).map((user) => validateAndFormat(user));
+  async function find(filter: any, options: any) {
+    return (await store.find(filter, options)).map((user) =>
+      validateAndFormat(user)
+    );
   }
 
   async function getById(id: string) {
@@ -74,13 +65,7 @@ export function createUsersCollection(
       throw new Error('Incorrect username or password');
     }
 
-    const token = generateToken(
-      result,
-      options.tokenSecret,
-      options.tokenExpirationPeriod
-    );
-
-    return token;
+    return validateAndFormat(result);
   }
 
   async function usernameExists(username: string): Promise<Boolean> {
@@ -117,7 +102,7 @@ export function createUsersCollection(
 
   return Object.freeze({
     register,
-    getAll,
+    find,
     getById,
     update,
     remove,

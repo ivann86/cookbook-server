@@ -8,20 +8,14 @@ declare global {
     }
     interface Response {
       createSession: (user: User) => void;
+      generateToken: (user: User) => string;
       clearSession: () => void;
     }
   }
 }
 
-/**
- * An Express middlware to manage cookie sessions with JSON Web Tokens
- * @param users A users collection
- * @param jwtSecret A secret key to use when generating JSON Web Token
- * @param jwtExpiresIn JSON Web Token expiration period
- * @returns An Express middleware
- */
-export function session(
-  users: UsersCollection,
+export function bearerToken(
+  store: InvalidTokensStore,
   jwtSecret: string,
   jwtExpiresIn: string
 ): RequestHandler {
@@ -41,6 +35,15 @@ export function session(
       res.cookie('jwt', token, { httpOnly: true });
     };
 
+    res.generateToken = (user: User) => {
+      const payload = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      };
+      return jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn });
+    };
+
     /**
      * Clears user's session by sending clear cookie
      */
@@ -55,8 +58,7 @@ export function session(
     }
 
     try {
-      const payload = jwt.verify(req.cookies.jwt, jwtSecret) as any;
-      req.user = await users.findById(payload.id);
+      req.user = jwt.verify(req.cookies.jwt, jwtSecret) as any;
       return next();
     } catch (err) {
       res.clearCookie('jwt');

@@ -3,15 +3,16 @@ import express from 'express';
 import * as dotenv from 'dotenv';
 import { api } from './api';
 import { createUsersCollection } from './users';
-import { createUsersStore } from './database';
+import { createInvalidTokensStore, createUsersStore } from './database';
 
 // dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
 const users = createUsersCollection(createUsersStore());
+const invalidTokens = createInvalidTokensStore();
 
-const cookbookApi = api(users, {
+const cookbookApi = api(users, invalidTokens, {
   jwtSecret: 'hf944s9ssaq',
   jwtExpiresIn: '1d',
 });

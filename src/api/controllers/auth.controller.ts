@@ -4,8 +4,8 @@ export function authController(users: UsersCollection) {
   async function register(req: Request, res: Response, next: NextFunction) {
     try {
       const user = await users.register(req.body);
-      res.createSession(user);
-      res.status(200).json(user);
+      const token = res.generateToken(user);
+      res.status(200).json({ user, token });
     } catch (err) {
       res.status(500).json({ message: (err as Error).message });
     }
