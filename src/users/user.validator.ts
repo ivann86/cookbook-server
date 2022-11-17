@@ -9,6 +9,11 @@ const userSchema = Joi.object({
   updatedAt: Joi.date(),
 });
 
+/**
+ * Validates a User object's fields
+ * @param user A User object to validate
+ * @returns The User object on succesfull validation. Throws on validation error.
+ */
 export function validate(user: User | null) {
   const { value, error } = userSchema.validate(user);
   if (error) {

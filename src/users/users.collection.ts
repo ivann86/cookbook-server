@@ -1,6 +1,11 @@
 import * as crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import { validate } from './user.validator';
+import {
+  checkPassword,
+  encryptPassword,
+  validateAndFormat,
+} from './users.utils';
 
 export function createUsersCollection(store: UsersDataStore): UsersCollection {
   async function register(newUser: {
@@ -9,12 +14,33 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
     password: string;
   }) {
     const validated = validate(newUser as User);
-    if (await usernameExists(validated.username)) {
+
+    // Search for existing user with the same username or e-mail addres and throw if found
+    const existingUser = validate(
+      await store.findOne(
+        {
+          $or: [
+            { username: new RegExp(validated.username, 'i') },
+            { email: new RegExp(validated.email, 'i') },
+          ],
+        },
+        {}
+      )
+    );
+    if (
+      existingUser &&
+      existingUser.username.toLowerCase() === validated.username.toLowerCase()
+    ) {
       throw new Error('Username is taken');
     }
-    if (await emailExists(validated.email)) {
+    if (
+      existingUser &&
+      existingUser.email.toLowerCase() === validated.email.toLowerCase()
+    ) {
       throw new Error('Email is registered');
     }
+
+    // Create the new user
     const user: User = {
       id: crypto.randomUUID(),
       username: validated.username,
@@ -61,7 +87,7 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
       throw new Error('Incorrect username or password');
     }
     const hashedPassword = result.password!;
-    if (!(await bcrypt.compare(password, hashedPassword))) {
+    if (!(await checkPassword(password, hashedPassword))) {
       throw new Error('Incorrect username or password');
     }
 
@@ -82,22 +108,6 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
       return true;
     }
     return false;
-  }
-
-  async function encryptPassword(password: string) {
-    return await bcrypt.hash(password, 10);
-  }
-
-  function format(user: User) {
-    if ('password' in user) {
-      delete user.password;
-    }
-
-    return Object.freeze(user);
-  }
-
-  function validateAndFormat(user: User | null) {
-    return Object.freeze(format(validate(user)));
   }
 
   return Object.freeze({
