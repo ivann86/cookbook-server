@@ -7,7 +7,7 @@ import { bearerToken } from './middlewares';
 declare global {
   interface ApiOptions {
     jwtSecret: string;
-    jwtExpiresIn: string;
+    jwtExpiresIn: number;
   }
 }
 

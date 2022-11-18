@@ -14,7 +14,7 @@ const invalidTokens = createInvalidTokensStore();
 
 const cookbookApi = api(users, invalidTokens, {
   jwtSecret: 'hf944s9ssaq',
-  jwtExpiresIn: '1d',
+  jwtExpiresIn: 3600,
 });
 const app = express();
 

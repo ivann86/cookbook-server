@@ -1,5 +1,3 @@
-import { any } from 'joi';
-
 export function createUsersStore(): UsersDataStore {
   const users: User[] = [];
 
@@ -11,7 +9,21 @@ export function createUsersStore(): UsersDataStore {
   }
 
   async function findOne(filter: any, options: any) {
-    return new Promise<User>(() => {});
+    return new Promise<User | null>((resolve) => {
+      const result = users.find((user) => {
+        for (let [key, value] of Object.entries(filter)) {
+          if (key in user) {
+            if (user[key as keyof User] === value) {
+              return user;
+            }
+          }
+        }
+      });
+      if (!result) {
+        return resolve(null);
+      }
+      resolve(result);
+    });
   }
 
   async function find(filter: any, options: object) {
@@ -30,6 +42,18 @@ export function createUsersStore(): UsersDataStore {
     });
   }
 
+  async function getByEmail(email: string, options: any) {
+    const emailRegex = new RegExp(email, 'i');
+
+    return new Promise<User | null>((resolve, reject) => {
+      const result = users.find((user) => emailRegex.test(email));
+      if (result) {
+        return resolve(result);
+      }
+      return resolve(null);
+    });
+  }
+
   async function updateOne(filter: any, update: User) {
     return new Promise<User>(() => {});
   }
@@ -45,6 +69,7 @@ export function createUsersStore(): UsersDataStore {
   return Object.freeze({
     create,
     findOne,
+    getByEmail,
     find,
     updateOne,
     updateMany,

@@ -4,12 +4,12 @@ import { RequestHandler, Request, Response, NextFunction } from 'express';
 declare global {
   namespace Express {
     interface Request {
-      user?: User | null;
+      user?: User;
+      token?: string;
     }
     interface Response {
-      createSession: (user: User) => void;
       generateToken: (user: User) => string;
-      clearSession: () => void;
+      blacklistToken: (token: string) => Promise<Boolean>;
     }
   }
 }
@@ -17,24 +17,9 @@ declare global {
 export function bearerToken(
   store: InvalidTokensStore,
   jwtSecret: string,
-  jwtExpiresIn: string
+  jwtExpiresIn: number
 ): RequestHandler {
   return async function (req: Request, res: Response, next: NextFunction) {
-    // Attach a method to send cookie with jwt
-    /**
-     * Creates a session
-     * @param user The user to create a session for
-     */
-    res.createSession = (user: User) => {
-      const payload = {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      };
-      const token = jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn });
-      res.cookie('jwt', token, { httpOnly: true });
-    };
-
     res.generateToken = (user: User) => {
       const payload = {
         id: user.id,
@@ -44,24 +29,26 @@ export function bearerToken(
       return jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn });
     };
 
-    /**
-     * Clears user's session by sending clear cookie
-     */
-    // Atach a method to clear the jwt cookie
-    res.clearSession = () => {
-      res.clearCookie('jwt');
+    res.blacklistToken = async (token) => {
+      try {
+        await store.insert(token, new Date(Date.now() + jwtExpiresIn));
+        return true;
+      } catch (err) {
+        return false;
+      }
     };
 
-    // Check if client sent jwt cookie
-    if (!(req.cookies && 'jwt' in req.cookies)) {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
       return next();
     }
 
     try {
-      req.user = jwt.verify(req.cookies.jwt, jwtSecret) as any;
+      req.user = jwt.verify(token, jwtSecret) as any;
+      req.token = token;
       return next();
     } catch (err) {
-      res.clearCookie('jwt');
       return next();
     }
   };
