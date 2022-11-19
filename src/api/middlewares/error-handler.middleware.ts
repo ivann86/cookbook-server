@@ -17,7 +17,7 @@ export function errorHandler(): ErrorRequestHandler {
     },
   };
   return function (err: any, req: Request, res: Response, next: NextFunction) {
-    const resDetails = errorHandlers[err.any];
+    const resDetails = errorHandlers[err.name];
     if (!resDetails) {
       return res.status(500).json({ status: 'error', message: 'Server error' });
     }
