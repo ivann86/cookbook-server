@@ -20,7 +20,7 @@ export function api(
 
   router.use(cookieParser());
   router.use(
-    bearerToken(invalidTokens, options.jwtSecret, options.jwtExpiresIn)
+    bearerToken(invalidTokens, users, options.jwtSecret, options.jwtExpiresIn)
   );
   router.use(express.json());
   router.use('/auth', authRouter(authController(users)));

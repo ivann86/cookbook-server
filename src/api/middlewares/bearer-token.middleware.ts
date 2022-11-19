@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { RequestHandler, Request, Response, NextFunction } from 'express';
+import { ApplicationError } from '../../errors/application.error';
 
 declare global {
   namespace Express {
@@ -15,7 +16,8 @@ declare global {
 }
 
 export function bearerToken(
-  store: InvalidTokensStore,
+  invalidTokens: InvalidTokensStore,
+  users: UsersCollection,
   jwtSecret: string,
   jwtExpiresIn: number
 ): RequestHandler {
@@ -30,7 +32,7 @@ export function bearerToken(
 
     res.blacklistToken = async (token) => {
       try {
-        await store.insert(token, new Date(Date.now() + jwtExpiresIn));
+        await invalidTokens.insert(token, new Date(Date.now() + jwtExpiresIn));
         return true;
       } catch (err) {
         return false;
@@ -44,10 +46,13 @@ export function bearerToken(
     }
 
     try {
-      if (await store.isBlacklisted(token)) {
+      if (await invalidTokens.isBlacklisted(token)) {
         return next();
       }
-      req.user = jwt.verify(token, jwtSecret) as any;
+      const payload = jwt.verify(token, jwtSecret) as any;
+      // Try to get the user. If this throw than don't use the token
+      await users.getById(payload.id);
+      req.user = payload;
       req.token = token;
       return next();
     } catch (err) {

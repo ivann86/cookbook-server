@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { formatSuccessfullResponse } from '../utils/format-response';
+import { makeResponseBody } from '../utils';
 
 export function authController(users: UsersCollection) {
   async function register(req: Request, res: Response, next: NextFunction) {
@@ -8,7 +8,7 @@ export function authController(users: UsersCollection) {
       const user = await users.register({ email, password });
       const token = res.generateToken(user);
       res.status(200).json(
-        formatSuccessfullResponse({
+        makeResponseBody({
           user: {
             id: user.id,
             email: user.email,
@@ -24,17 +24,25 @@ export function authController(users: UsersCollection) {
   async function login(req: Request, res: Response, next: NextFunction) {
     try {
       let token = req.token;
-      if (!token) {
+      let user = req.user;
+
+      // Perform login only users didn't supply a valid token
+      if (!token || !user) {
         const { email, password } = req.body;
-        const user = await users.authenticate(email, password);
+        user = await users.authenticate(email, password);
         token = res.generateToken(user);
       }
 
-      res.status(200).json({
-        status: 'success',
-        message: 'You were logged in successfully',
-        token,
-      });
+      // Return the user a new token or the same if it was valid already
+      res.status(200).json(
+        makeResponseBody({
+          user: {
+            id: user.id,
+            email: user.email,
+          },
+          token,
+        })
+      );
     } catch (err) {
       next(err);
     }
@@ -45,10 +53,7 @@ export function authController(users: UsersCollection) {
       if (req.token) {
         res.blacklistToken(req.token);
       }
-      res.status(200).json({
-        status: 'success',
-        message: 'You were logged out successfully',
-      });
+      res.status(200).json(makeResponseBody(undefined));
     } catch (err) {
       next(err);
     }

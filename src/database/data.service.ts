@@ -54,6 +54,11 @@ export function createUsersStore(): UsersDataStore {
     });
   }
 
+  async function getById(id: string, options: any) {
+    const result = users.find((user) => user.id === id);
+    return Promise.resolve(result || null);
+  }
+
   async function updateOne(filter: any, update: User) {
     return new Promise<User>(() => {});
   }
@@ -69,6 +74,7 @@ export function createUsersStore(): UsersDataStore {
   return Object.freeze({
     create,
     findOne,
+    getById,
     getByEmail,
     find,
     updateOne,

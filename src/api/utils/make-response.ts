@@ -1,4 +1,4 @@
-export function formatSuccessfullResponse(data: any) {
+export function makeResponseBody(data: any) {
   let result = {
     status: 'success',
     data: {} as any,

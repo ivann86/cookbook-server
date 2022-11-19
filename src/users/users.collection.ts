@@ -38,11 +38,11 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
   }
 
   async function getById(id: string) {
-    const results = await store.find({ id }, {});
-    if (results.length === 0) {
+    const result = await store.getById(id, {});
+    if (!result) {
       throw new Error('No such user');
     }
-    return validateAndFormat(results[0]);
+    return validateAndFormat(result);
   }
 
   async function update(id: string, updatedInfo: any) {

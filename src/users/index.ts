@@ -3,6 +3,7 @@ export { createUsersCollection } from './users.collection';
 
 declare global {
   interface UsersDataStore extends DataStore<User> {
+    getById: (id: string, options: any) => Promise<User | null>;
     getByEmail: (email: string, options: any) => Promise<User | null>;
   }
 }
