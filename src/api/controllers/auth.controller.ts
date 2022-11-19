@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { formatSuccessfullResponse } from '../utils/format-response';
 
 export function authController(users: UsersCollection) {
   async function register(req: Request, res: Response, next: NextFunction) {
@@ -6,17 +7,28 @@ export function authController(users: UsersCollection) {
       const { email, password } = req.body;
       const user = await users.register({ email, password });
       const token = res.generateToken(user);
-      res.status(200).json({ user, token });
+      res.status(200).json(
+        formatSuccessfullResponse({
+          user: {
+            id: user.id,
+            email: user.email,
+          },
+          token,
+        })
+      );
     } catch (err) {
-      res.status(500).json({ message: (err as Error).message });
+      next(err);
     }
   }
 
   async function login(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, password } = req.body;
-      const user = await users.authenticate(email, password);
-      const token = res.generateToken(user);
+      let token = req.token;
+      if (!token) {
+        const { email, password } = req.body;
+        const user = await users.authenticate(email, password);
+        token = res.generateToken(user);
+      }
 
       res.status(200).json({
         status: 'success',
@@ -24,18 +36,21 @@ export function authController(users: UsersCollection) {
         token,
       });
     } catch (err) {
-      res.status(500).json({ message: (err as Error).message });
+      next(err);
     }
   }
 
   async function logout(req: Request, res: Response, next: NextFunction) {
     try {
+      if (req.token) {
+        res.blacklistToken(req.token);
+      }
       res.status(200).json({
         status: 'success',
         message: 'You were logged out successfully',
       });
     } catch (err) {
-      res.status(500).json({ message: (err as Error).message });
+      next(err);
     }
   }
 

@@ -1,4 +1,6 @@
 import * as crypto from 'crypto';
+import { DuplicationError, ValidationError } from '../errors';
+import { ApplicationError } from '../errors/application.error';
 import { validate } from './user.validator';
 import {
   checkPassword,
@@ -12,7 +14,9 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
 
     // Search for existing user with the same username or e-mail addres and throw if found
     if (await store.getByEmail(email, {})) {
-      throw new Error(`The e-mail address ${email} is already registerd`);
+      throw new DuplicationError(
+        `The e-mail address ${email} is already registerd`
+      );
     }
 
     // Create the new user
@@ -58,11 +62,17 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
   async function authenticate(email: string, password: string) {
     const result = await store.getByEmail(email, {});
     if (!result) {
-      throw new Error('Incorrect username or password');
+      throw new ApplicationError(
+        'AuthorizationError',
+        'Incorrect username or password'
+      );
     }
     const hashedPassword = result.password!;
     if (!(await checkPassword(password, hashedPassword))) {
-      throw new Error('Incorrect username or password');
+      throw new ApplicationError(
+        'AuthorizationError',
+        'Incorrect username or password'
+      );
     }
 
     return validateAndFormat(result);

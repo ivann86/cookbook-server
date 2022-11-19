@@ -2,7 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import { authController } from './controllers';
 import { authRouter } from './routers';
-import { bearerToken } from './middlewares';
+import { bearerToken, errorHandler } from './middlewares';
 
 declare global {
   interface ApiOptions {
@@ -30,6 +30,8 @@ export function api(
     .all((req, res) =>
       res.status(404).json({ message: 'This route does not exist' })
     );
+
+  router.use(errorHandler());
 
   return router;
 }

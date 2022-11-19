@@ -23,7 +23,6 @@ export function bearerToken(
     res.generateToken = (user: User) => {
       const payload = {
         id: user.id,
-        username: user.username,
         email: user.email,
       };
       return jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn });
@@ -45,6 +44,9 @@ export function bearerToken(
     }
 
     try {
+      if (await store.isBlacklisted(token)) {
+        return next();
+      }
       req.user = jwt.verify(token, jwtSecret) as any;
       req.token = token;
       return next();
