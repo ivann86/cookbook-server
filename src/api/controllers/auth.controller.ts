@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { ApplicationError } from '../../errors/application.error';
 import { makeResponseBody } from '../utils';
 
 export function authController(users: UsersCollection) {
@@ -50,9 +51,14 @@ export function authController(users: UsersCollection) {
 
   async function logout(req: Request, res: Response, next: NextFunction) {
     try {
-      if (req.token) {
-        res.blacklistToken(req.token);
+      if (!req.token) {
+        throw new ApplicationError(
+          'AuthorizationError',
+          'You are not logged in'
+        );
       }
+
+      res.blacklistToken(req.token);
       res.status(200).json(makeResponseBody(undefined));
     } catch (err) {
       next(err);
