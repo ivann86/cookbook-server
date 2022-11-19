@@ -31,12 +31,6 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
     return validateAndFormat(await store.create(user));
   }
 
-  async function find(filter: any, options: any) {
-    return (await store.find(filter, options)).map((user) =>
-      validateAndFormat(user)
-    );
-  }
-
   async function getById(id: string) {
     const result = await store.getById(id, {});
     if (!result) {
@@ -80,7 +74,6 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
 
   return Object.freeze({
     register,
-    find,
     getById,
     update,
     remove,

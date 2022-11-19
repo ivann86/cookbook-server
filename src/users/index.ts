@@ -21,7 +21,6 @@ declare global {
 declare global {
   interface UsersCollection {
     register: (newUser: { email: string; password: string }) => Promise<User>;
-    find: (filter: any, options: any) => Promise<User[]>;
     getById: (id: string) => Promise<User>;
     update: (id: string, updatedInfo: any) => Promise<User>;
     remove: (id: string) => Promise<Boolean>;

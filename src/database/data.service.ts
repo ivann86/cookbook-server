@@ -8,40 +8,6 @@ export function createUsersStore(): UsersDataStore {
     });
   }
 
-  async function findOne(filter: any, options: any) {
-    return new Promise<User | null>((resolve) => {
-      const result = users.find((user) => {
-        for (let [key, value] of Object.entries(filter)) {
-          if (key in user) {
-            if (user[key as keyof User] === value) {
-              return user;
-            }
-          }
-        }
-      });
-      if (!result) {
-        return resolve(null);
-      }
-      resolve(result);
-    });
-  }
-
-  async function find(filter: any, options: object) {
-    return new Promise<User[]>((resolve) => {
-      resolve(
-        users.filter((user) => {
-          for (let [key, value] of Object.entries(filter)) {
-            if (key in user) {
-              if (user[key as keyof User] === value) {
-                return user;
-              }
-            }
-          }
-        })
-      );
-    });
-  }
-
   async function getByEmail(email: string, options: any) {
     const emailRegex = new RegExp(email, 'i');
 
@@ -73,10 +39,8 @@ export function createUsersStore(): UsersDataStore {
 
   return Object.freeze({
     create,
-    findOne,
     getById,
     getByEmail,
-    find,
     updateOne,
     updateMany,
     remove,
