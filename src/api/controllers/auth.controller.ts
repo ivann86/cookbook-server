@@ -24,12 +24,12 @@ export function authController(users: UsersCollection) {
 
   async function login(req: Request, res: Response, next: NextFunction) {
     try {
+      const { email, password } = req.body;
       let token = req.token;
       let user = req.user;
 
       // Perform login only users didn't supply a valid token
-      if (!token || !user) {
-        const { email, password } = req.body;
+      if (!token || !(user && user.email === email)) {
         user = await users.authenticate(email, password);
         token = res.generateToken(user);
       }

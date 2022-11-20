@@ -12,7 +12,7 @@ export function createUsersStore(): UsersDataStore {
     const emailRegex = new RegExp(email, 'i');
 
     return new Promise<User | null>((resolve, reject) => {
-      const result = users.find((user) => emailRegex.test(email));
+      const result = users.find((user) => emailRegex.test(user.email));
       if (result) {
         return resolve(result);
       }

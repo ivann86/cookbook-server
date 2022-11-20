@@ -19,10 +19,10 @@ export function errorHandler(): ErrorRequestHandler {
   return function (err: any, req: Request, res: Response, next: NextFunction) {
     const resDetails = errorHandlers[err.name];
     if (!resDetails) {
-      return res.status(500).json({ status: 'error', message: 'Server error' });
+      return res.status(500).json({ status: 'fail', message: 'Server error' });
     }
     res
       .status(resDetails.statusCode)
-      .json({ status: 'error', message: resDetails.message(err) });
+      .json({ status: 'fail', message: resDetails.message(err) });
   };
 }

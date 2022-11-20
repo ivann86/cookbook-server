@@ -22,7 +22,7 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
     // Create the new user
     const user: User = {
       id: crypto.randomUUID(),
-      email,
+      email: email.toLowerCase(),
       createdAt: new Date(),
       updatedAt: new Date(),
       password: await encryptPassword(password),
