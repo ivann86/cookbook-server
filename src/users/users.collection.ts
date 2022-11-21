@@ -31,12 +31,24 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
     return validateAndFormat(await store.create(user));
   }
 
+  async function getAll(options: any) {
+    return (await store.getAll(options)).map((user) => validateAndFormat(user));
+  }
+
   async function getById(id: string) {
     const result = await store.getById(id, {});
     if (!result) {
       throw new Error('No such user');
     }
     return validateAndFormat(result);
+  }
+
+  async function getByEmail(email: string) {
+    const result = await store.getByEmail(email, {});
+    if (!result) {
+      throw new Error('No such user');
+    }
+    return result;
   }
 
   async function update(id: string, updatedInfo: any) {
@@ -74,7 +86,9 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
 
   return Object.freeze({
     register,
+    getAll,
     getById,
+    getByEmail,
     update,
     remove,
     authenticate,

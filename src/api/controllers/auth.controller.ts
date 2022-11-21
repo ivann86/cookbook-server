@@ -65,9 +65,23 @@ export function authController(users: UsersCollection) {
     }
   }
 
+  async function getUserProfile(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const user = await users.getById(req.user?.id!);
+      res.status(200).json(makeResponseBody(user));
+    } catch (err) {
+      next(err);
+    }
+  }
+
   return Object.freeze({
     register,
     login,
     logout,
+    getUserProfile,
   });
 }

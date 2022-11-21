@@ -6,7 +6,7 @@ export function createInvalidTokensStore(): InvalidTokensStore {
     return Promise.resolve();
   }
 
-  function isBlacklisted(token: string) {
+  function check(token: string) {
     const result = store.find((item) => item.token === token);
     if (result) {
       return Promise.resolve(true);
@@ -16,6 +16,6 @@ export function createInvalidTokensStore(): InvalidTokensStore {
 
   return Object.freeze({
     insert,
-    isBlacklisted,
+    check,
   });
 }

@@ -1,8 +1,12 @@
 import jwt from 'jsonwebtoken';
 import { RequestHandler, Request, Response, NextFunction } from 'express';
-import { ApplicationError } from '../../errors/application.error';
 
 declare global {
+  interface InvalidTokensStore {
+    insert(token: string, expireAt: Date): Promise<void>;
+    check(token: string): Promise<Boolean>;
+  }
+
   namespace Express {
     interface Request {
       user?: User;
@@ -46,11 +50,12 @@ export function bearerToken(
     }
 
     try {
-      if (await invalidTokens.isBlacklisted(token)) {
+      if (await invalidTokens.check(token)) {
         return next();
       }
+
       const payload = jwt.verify(token, jwtSecret) as any;
-      // Try to get the user. If this throw than don't use the token
+      // Try to get the user. If this throws than don't use the token
       await users.getById(payload.id);
       req.user = payload;
       req.token = token;

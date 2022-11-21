@@ -8,6 +8,10 @@ export function createUsersStore(): UsersDataStore {
     });
   }
 
+  async function getAll(options: any) {
+    return Promise.resolve(users);
+  }
+
   async function getByEmail(email: string, options: any) {
     const emailRegex = new RegExp(email, 'i');
 
@@ -39,6 +43,7 @@ export function createUsersStore(): UsersDataStore {
 
   return Object.freeze({
     create,
+    getAll,
     getById,
     getByEmail,
     updateOne,
