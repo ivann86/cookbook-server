@@ -1,7 +1,11 @@
 import * as crypto from 'crypto';
-import { DuplicationError, ValidationError } from '../errors';
+import { DuplicationError } from '../errors';
 import { ApplicationError } from '../errors/application.error';
-import { validate } from './user.validator';
+import {
+  validateUser,
+  validateUserCredentials,
+  validateUserRegistrationData,
+} from './user.validators';
 import {
   checkPassword,
   encryptPassword,
@@ -9,8 +13,9 @@ import {
 } from './users.utils';
 
 export function createUsersCollection(store: UsersDataStore): UsersCollection {
-  async function register(newUser: { email: string; password: string }) {
-    const { email, password } = validate(newUser as User);
+  async function register(newUser: UserRegistrationData) {
+    const { email, password, firstName, lastName } =
+      validateUserRegistrationData(newUser);
 
     // Search for existing user with the same username or e-mail addres and throw if found
     if (await store.getByEmail(email, {})) {
@@ -23,6 +28,8 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
     const user: User = {
       id: crypto.randomUUID(),
       email: email.toLowerCase(),
+      firstName,
+      lastName,
       createdAt: new Date(),
       updatedAt: new Date(),
       password: await encryptPassword(password),
@@ -38,7 +45,7 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
   async function getById(id: string) {
     const result = await store.getById(id, {});
     if (!result) {
-      throw new Error('No such user');
+      throw new ApplicationError('NotFound', `No user found with id: ${id}`);
     }
     return validateAndFormat(result);
   }
@@ -46,7 +53,10 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
   async function getByEmail(email: string) {
     const result = await store.getByEmail(email, {});
     if (!result) {
-      throw new Error('No such user');
+      throw new ApplicationError(
+        'NotFound',
+        `No user found with e-mail: ${email}`
+      );
     }
     return result;
   }
@@ -56,7 +66,7 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
       delete updatedInfo.password;
     }
     const currentUser = await getById(id);
-    const newUser = validate(Object.assign(currentUser, updatedInfo));
+    const newUser = validateUser(Object.assign(currentUser, updatedInfo));
     newUser.updatedAt = new Date();
     return validateAndFormat(await store.updateOne({ id }, newUser));
   }
@@ -65,15 +75,27 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
     return await store.remove(id);
   }
 
-  async function authenticate(email: string, password: string) {
+  async function authenticate(credentials: UserCredentials) {
+    let email = '';
+    let password = '';
+    try {
+      ({ email, password } = validateUserCredentials(credentials));
+    } catch (err) {
+      throw new ApplicationError(
+        'AuthorizationError',
+        'Incorrect username or password'
+      );
+    }
     const result = await store.getByEmail(email, {});
+
     if (!result) {
       throw new ApplicationError(
         'AuthorizationError',
         'Incorrect username or password'
       );
     }
-    const hashedPassword = result.password!;
+
+    const hashedPassword = result.password || '';
     if (!(await checkPassword(password, hashedPassword))) {
       throw new ApplicationError(
         'AuthorizationError',

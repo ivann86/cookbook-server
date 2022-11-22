@@ -1,4 +1,4 @@
-export { validate } from './user.validator';
+export { validateUser } from './user.validators';
 export { createUsersCollection } from './users.collection';
 
 declare global {
@@ -6,26 +6,36 @@ declare global {
     getById: (id: string, options: any) => Promise<User | null>;
     getByEmail: (email: string, options: any) => Promise<User | null>;
   }
-}
 
-declare global {
   interface User {
-    id?: string;
+    id: string;
     email: string;
     password?: string;
+    firstName?: string;
+    lastName?: string;
     createdAt?: Date;
     updatedAt?: Date;
   }
-}
 
-declare global {
+  interface UserRegistrationData {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+  }
+
+  interface UserCredentials {
+    email: string;
+    password: string;
+  }
+
   interface UsersCollection {
-    register: (newUser: { email: string; password: string }) => Promise<User>;
+    register: (newUser: UserRegistrationData) => Promise<User>;
     getAll: (options: any) => Promise<User[]>;
     getById: (id: string) => Promise<User>;
     getByEmail: (email: string) => Promise<User>;
     update: (id: string, updatedInfo: any) => Promise<User>;
     remove: (id: string) => Promise<Boolean>;
-    authenticate: (username: string, password: string) => Promise<User>;
+    authenticate: (credentials: UserCredentials) => Promise<User>;
   }
 }

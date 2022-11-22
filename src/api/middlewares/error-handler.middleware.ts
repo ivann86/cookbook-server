@@ -1,35 +1,27 @@
-import {
-  Application,
-  ErrorRequestHandler,
-  NextFunction,
-  Request,
-  Response,
-} from 'express';
-import { ApplicationError } from '../../errors/application.error';
+import { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 
 export function errorHandler(): ErrorRequestHandler {
-  const errorHandlers: any = {
-    ValidationError: {
-      statusCode: 400,
-      message: (err: any) => err.message,
-    },
-    DuplicationError: {
-      statusCode: 400,
-      message: (err: any) => err.message,
-    },
-    AuthorizationError: {
-      statusCode: 401,
-      message: (err: any) => err.message,
-    },
+  const knownErrors: any = {
+    ValidationError: 400,
+    DuplicationError: 400,
+    AuthorizationError: 401,
   };
+
   return function (err: any, req: Request, res: Response, next: NextFunction) {
-    if (!(err.name in errorHandlers)) {
+    if (!(err.name in knownErrors)) {
       return res.status(500).json({ status: 'fail', message: 'Server error' });
     }
-    const resDetails = errorHandlers[err.name];
 
-    res
-      .status(resDetails.statusCode)
-      .json({ status: 'fail', message: resDetails.message(err) });
+    const error: { message: string; details?: unknown[] } = {
+      message: err.message,
+    };
+    if ('details' in err) {
+      error.details = err.details;
+    }
+
+    res.status(knownErrors[err.name]).json({
+      status: 'fail',
+      error,
+    });
   };
 }

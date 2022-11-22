@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { validate } from './user.validator';
+import { validateUser } from './user.validators';
 
 export function format(user: User) {
   if ('password' in user) {
@@ -9,8 +9,8 @@ export function format(user: User) {
   return Object.freeze(user);
 }
 
-export function validateAndFormat(user: User | null) {
-  return Object.freeze(format(validate(user)));
+export function validateAndFormat(user: User) {
+  return Object.freeze(format(validateUser(user)));
 }
 
 export async function encryptPassword(password: string) {

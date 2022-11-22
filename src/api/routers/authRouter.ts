@@ -1,14 +1,5 @@
 import express, { RequestHandler } from 'express';
 
-declare global {
-  interface AuthController {
-    register: RequestHandler;
-    login: RequestHandler;
-    logout: RequestHandler;
-    getUserProfile: RequestHandler;
-  }
-}
-
 export function authRouter(controller: AuthController) {
   const router = express.Router();
 
