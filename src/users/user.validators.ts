@@ -1,4 +1,3 @@
-import { create } from 'domain';
 import Joi from 'joi';
 import { ValidationError } from '../errors';
 
@@ -23,12 +22,12 @@ const userRegistrationSchema = Joi.object({
   password: passwordSchema,
   firstName: firstNameSchema,
   lastName: lastNameSchema,
-});
+}).options({ abortEarly: false, stripUnknown: true });
 
 const userAuthenticationSchema = Joi.object({
   email: emailSchema,
   password: passwordSchema,
-});
+}).options({ abortEarly: false, stripUnknown: true });
 
 const userSchema = Joi.object({
   id: Joi.string()
@@ -42,7 +41,7 @@ const userSchema = Joi.object({
   lastName: lastNameSchema,
   createdAt: Joi.date(),
   updatedAt: Joi.date(),
-});
+}).options({ abortEarly: false, stripUnknown: true });
 
 export function validateUser(user: User) {
   return validate(user, userSchema);
@@ -64,21 +63,8 @@ export function validatePassword(password: string) {
   return validate(password, passwordSchema);
 }
 
-function validate(
-  value: User | UserRegistrationData | UserCredentials | string,
-  schema: Joi.Schema
-) {
-  let cleanedValue: any = value;
-  if (typeof value !== 'string') {
-    cleanedValue = {};
-    Object.entries(schema.describe().keys).forEach(([key, val]) => {
-      cleanedValue[key] = (value as any)[key];
-    });
-  }
-
-  const result = schema.validate(cleanedValue, {
-    abortEarly: false,
-  });
+function validate(value: unknown, schema: Joi.Schema) {
+  const result = schema.validate(value);
 
   if (result.error) {
     const validationError = new ValidationError(result.error.message);

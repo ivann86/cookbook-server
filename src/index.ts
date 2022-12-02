@@ -29,7 +29,7 @@ app.use('/api/v1/', cookbookApi);
 
 const server = http.createServer(app);
 
-configMongoose(process.env.MONGODB_CONNECTION_STRING, undefined);
+configMongoose(process.env.MONGODB_CONNECTION_STRING!, undefined);
 
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}...`);

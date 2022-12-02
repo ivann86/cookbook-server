@@ -11,6 +11,9 @@ const ingredientSchema = Joi.object({
     .trim()
     .min(1)
     .message('Ingredient quantity units cannot be empty'),
+}).options({
+  abortEarly: false,
+  stripUnknown: { arrays: true, objects: true },
 });
 
 // Recipe schema
@@ -45,6 +48,9 @@ const recipeSchema = Joi.object({
   nationality: Joi.string().trim(),
   mealTypes: Joi.array().items(Joi.string()),
   tags: Joi.array().items(Joi.string()),
+}).options({
+  abortEarly: false,
+  stripUnknown: { arrays: true, objects: true },
 });
 
 export function validateIngredient(ingredient: Ingredient) {
@@ -55,10 +61,8 @@ export function validateRecipe(recipe: Recipe) {
   return validate(recipe, recipeSchema);
 }
 
-function validate(value: Recipe | Ingredient, schema: Joi.Schema) {
-  const result = schema.validate(value, {
-    abortEarly: false,
-  });
+function validate(value: any, schema: Joi.Schema) {
+  const result = schema.validate(value);
 
   if (result.error) {
     const validationError = new ValidationError(result.error.message);

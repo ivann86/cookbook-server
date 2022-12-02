@@ -10,7 +10,6 @@ export function createRecipesCollection(
       Object.assign({ id: crypto.randomUUID() }, newRecipe)
     );
     const result = await store.create(validated);
-
     return validateRecipe(result);
   }
 
