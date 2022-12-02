@@ -9,7 +9,7 @@ export function format(user: User) {
   return Object.freeze(user);
 }
 
-export function validateAndFormat(user: User) {
+export function outputUser(user: User) {
   return Object.freeze(format(validateUser(user)));
 }
 

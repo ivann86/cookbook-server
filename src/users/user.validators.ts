@@ -68,7 +68,15 @@ function validate(
   value: User | UserRegistrationData | UserCredentials | string,
   schema: Joi.Schema
 ) {
-  const result = schema.validate(value, {
+  let cleanedValue: any = value;
+  if (typeof value !== 'string') {
+    cleanedValue = {};
+    Object.entries(schema.describe().keys).forEach(([key, val]) => {
+      cleanedValue[key] = (value as any)[key];
+    });
+  }
+
+  const result = schema.validate(cleanedValue, {
     abortEarly: false,
   });
 

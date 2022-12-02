@@ -2,15 +2,12 @@ import * as crypto from 'crypto';
 import { DuplicationError } from '../errors';
 import { ApplicationError } from '../errors/application.error';
 import {
+  validatePassword,
   validateUser,
   validateUserCredentials,
   validateUserRegistrationData,
 } from './user.validators';
-import {
-  checkPassword,
-  encryptPassword,
-  validateAndFormat,
-} from './users.utils';
+import { checkPassword, encryptPassword, outputUser } from './users.utils';
 
 export function createUsersCollection(store: UsersDataStore): UsersCollection {
   async function register(newUser: UserRegistrationData) {
@@ -35,19 +32,19 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
       password: await encryptPassword(password),
     };
 
-    return validateAndFormat(await store.create(user));
+    return outputUser(await store.create(user));
   }
 
   async function getAll(options: any) {
-    return (await store.getAll(options)).map((user) => validateAndFormat(user));
+    return (await store.getAll(options)).map((user) => outputUser(user));
   }
 
-  async function getById(id: string) {
-    const result = await store.getById(id, {});
+  async function getById(id: string, options: any) {
+    const result = await store.getById(id, options);
     if (!result) {
       throw new ApplicationError('NotFound', `No user found with id: ${id}`);
     }
-    return validateAndFormat(result);
+    return outputUser(result);
   }
 
   async function getByEmail(email: string) {
@@ -65,14 +62,32 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
     if ('password' in updatedInfo) {
       delete updatedInfo.password;
     }
-    const currentUser = await getById(id);
+    const currentUser = await getById(id, {});
     const newUser = validateUser(Object.assign(currentUser, updatedInfo));
     newUser.updatedAt = new Date();
-    return validateAndFormat(await store.updateOne({ id }, newUser));
+    return outputUser(await store.updateOne({ id }, newUser));
   }
 
   async function remove(id: string) {
     return await store.remove(id);
+  }
+
+  async function changePassword(
+    id: string,
+    oldPassword: string,
+    newPassword: string
+  ) {
+    const user = await store.getById(id, {});
+    if (!user) {
+      throw new ApplicationError('NotFound', `No user found with id: ${id}`);
+    }
+    if (!(await checkPassword(oldPassword, user.password || ''))) {
+      throw new ApplicationError('AuthorizationError', 'Wrong password');
+    }
+
+    const newPassHash = await encryptPassword(validatePassword(newPassword));
+    user.updatedAt = new Date();
+    return outputUser(await store.updateOne({ id }, user));
   }
 
   async function authenticate(credentials: UserCredentials) {
@@ -91,7 +106,7 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
     if (!result) {
       throw new ApplicationError(
         'AuthorizationError',
-        'Incorrect username or password'
+        'Wrong username or password'
       );
     }
 
@@ -99,11 +114,11 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
     if (!(await checkPassword(password, hashedPassword))) {
       throw new ApplicationError(
         'AuthorizationError',
-        'Incorrect username or password'
+        'Wrong username or password'
       );
     }
 
-    return validateAndFormat(result);
+    return outputUser(result);
   }
 
   return Object.freeze({

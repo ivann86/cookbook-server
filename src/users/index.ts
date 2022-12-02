@@ -1,9 +1,8 @@
-export { validateUser } from './user.validators';
-export { createUsersCollection } from './users.collection';
+export * from './user.validators';
+export * from './users.collection';
 
 declare global {
   interface UsersDataStore extends DataStore<User> {
-    getById: (id: string, options: any) => Promise<User | null>;
     getByEmail: (email: string, options: any) => Promise<User | null>;
   }
 
@@ -32,7 +31,7 @@ declare global {
   interface UsersCollection {
     register: (newUser: UserRegistrationData) => Promise<User>;
     getAll: (options: any) => Promise<User[]>;
-    getById: (id: string) => Promise<User>;
+    getById: (id: string, options: any) => Promise<User>;
     getByEmail: (email: string) => Promise<User>;
     update: (id: string, updatedInfo: any) => Promise<User>;
     remove: (id: string) => Promise<Boolean>;
