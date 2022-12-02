@@ -34,7 +34,7 @@ export function createUsersStore(): UsersDataStore {
   }
 
   async function updateMany(filter: any, update: User) {
-    return new Promise<User>(() => {});
+    return new Promise<User[]>(() => {});
   }
 
   async function remove(id: string) {
