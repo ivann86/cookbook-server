@@ -56,7 +56,7 @@ export function bearerToken(
 
       const payload = jwt.verify(token, jwtSecret) as any;
       // Try to get the user. If this throws than don't use the token
-      await users.getById(payload.id);
+      await users.getById(payload.id, {});
       req.user = payload;
       req.token = token;
       return next();

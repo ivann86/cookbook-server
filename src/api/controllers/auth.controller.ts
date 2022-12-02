@@ -83,7 +83,7 @@ export function authController(users: UsersCollection) {
     next: NextFunction
   ) {
     try {
-      const user = await users.getById(req.user?.id!);
+      const user = await users.getById(req.user?.id!, {});
       res.status(200).json(makeResponseBody({ user }));
     } catch (err: any) {
       if (err.name && err.name === 'NotFound') {

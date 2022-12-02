@@ -1,7 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import { authController } from './controllers';
-import { authRouter } from './routers';
+import { authController, recipesController } from './controllers';
+import { authRouter, recipesRouter } from './routers';
 import { bearerToken, errorHandler } from './middlewares';
 
 declare global {
@@ -13,6 +13,7 @@ declare global {
 
 export function api(
   users: UsersCollection,
+  recipes: RecipesCollection,
   invalidTokens: InvalidTokensStore,
   options: ApiOptions
 ) {
@@ -23,7 +24,9 @@ export function api(
     bearerToken(invalidTokens, users, options.jwtSecret, options.jwtExpiresIn)
   );
   router.use(express.json());
+
   router.use('/auth', authRouter(authController(users)));
+  router.use('/recipes', recipesRouter(recipesController(recipes)));
 
   router
     .route('*')
