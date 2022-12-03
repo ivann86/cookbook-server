@@ -6,6 +6,8 @@ import { createUsersCollection } from './users';
 import { createInvalidTokensStore, createRecipeStore, createUserStore } from './database';
 import { createRecipesCollection } from './recipe';
 import { configMongoose } from './database/config';
+import morgan from 'morgan';
+import cors from 'cors';
 
 config();
 
@@ -18,6 +20,12 @@ const apiOtions = { jwtSecret: 'hf944s9ssaq', jwtExpiresIn: 3600 };
 const cookbookApi = api(users, recipes, invalidTokens, apiOtions);
 
 const app = express();
+app.use(
+  cors({
+    origin: 'http://localhost:4200',
+  })
+);
+app.use(morgan('combined'));
 app.use('/api/v1/', cookbookApi);
 const server = http.createServer(app);
 

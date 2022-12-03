@@ -3,12 +3,18 @@ export * from './recipes.collection';
 
 declare global {
   interface Recipe {
+    id: string;
     name: string;
     imgUrl: string;
+    imgSmallUrl: string;
+    description: string;
     ingredients: Ingredient[];
     steps: string[];
     prepTimeInSeconds: number;
     portions: number;
+    nationality: string;
+    categories: string[];
+    tags: string[];
   }
 
   interface Ingredient {

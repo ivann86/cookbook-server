@@ -4,12 +4,14 @@ const recipeSchema = new Schema({
   _id: String,
   name: { type: String, required: true },
   imgUrl: String,
+  imgSmallUrl: String,
+  description: String,
   ingredients: [{ name: String, quantity: Number, units: String }],
   steps: [String],
   prepTime: Number,
   portions: Number,
   nationality: String,
-  mealTypes: [String],
+  categories: [String],
   tags: [String],
 })
   .set('toJSON', { virtuals: true })
