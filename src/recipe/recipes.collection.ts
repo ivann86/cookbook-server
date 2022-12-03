@@ -2,13 +2,9 @@ import * as crypto from 'crypto';
 import { ApplicationError } from '../errors/application.error';
 import { validateRecipe } from './recipe.validatiors';
 
-export function createRecipesCollection(
-  store: RecipesDataStore
-): RecipesCollection {
+export function createRecipesCollection(store: RecipesDataStore): RecipesCollection {
   async function add(newRecipe: Recipe) {
-    const validated = validateRecipe(
-      Object.assign({ id: crypto.randomUUID() }, newRecipe)
-    );
+    const validated = validateRecipe(Object.assign({ id: crypto.randomUUID() }, newRecipe));
     const result = await store.create(validated);
     return validateRecipe(result);
   }
@@ -28,9 +24,7 @@ export function createRecipesCollection(
 
   async function update(id: string, updatedInfo: any) {
     const validatedUpdateInfo = validateRecipe({ id, ...updatedInfo });
-    delete validatedUpdateInfo.id;
-    const result = await store.updateOne({ id }, validatedUpdateInfo);
-    return validateRecipe(result);
+    return validateRecipe(await store.updateOne({ id }, validatedUpdateInfo));
   }
 
   async function remove(id: string) {

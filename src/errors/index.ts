@@ -1,2 +1,2 @@
-export { ValidationError } from './validation.error';
-export { DuplicationError } from './duplication.error';
+export * from './validation.error';
+export * from './duplication.error';

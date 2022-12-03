@@ -4,18 +4,13 @@ import { ValidationError } from '../errors';
 const firstNameSchema = Joi.string().trim();
 const lastNameSchema = Joi.string().trim();
 
-const emailSchema = Joi.string()
-  .trim()
-  .lowercase()
-  .email()
-  .message('Invalid e-mail address')
-  .required();
+const emailSchema = Joi.string().trim().lowercase().email().message('Invalid e-mail address').required();
 
 const passwordSchema = Joi.string()
   .min(6)
-  .message('The password must be minimum 6 characters long')
+  .message('Password must be at least 6 characters long')
   .regex(/^(?=.*\d)(?=.*[a-z]).*$/)
-  .message('The password must include both letters and numbers');
+  .message('Password must include letters and numbers');
 
 const userRegistrationSchema = Joi.object({
   email: emailSchema,
@@ -30,11 +25,7 @@ const userAuthenticationSchema = Joi.object({
 }).options({ abortEarly: false, stripUnknown: true });
 
 const userSchema = Joi.object({
-  id: Joi.string()
-    .trim()
-    .lowercase()
-    .uuid()
-    .message('User id must be a valid UUID string'),
+  id: Joi.string().trim().lowercase().uuid().message('User id must be a valid UUID string'),
   email: emailSchema,
   password: passwordSchema,
   firstName: firstNameSchema,

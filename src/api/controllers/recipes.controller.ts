@@ -5,7 +5,7 @@ declare global {
   interface RecipesController {
     addRecipe: RequestHandler;
     getAll: RequestHandler;
-    // getById: RequestHandler;
+    getById: RequestHandler;
   }
 }
 
@@ -28,8 +28,18 @@ export function recipesController(recipes: RecipesCollection) {
     }
   }
 
+  async function getById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const recipe = await recipes.getById(req.params.id, {});
+      res.status(200).json(makeResponseBody({ recipe }));
+    } catch (err) {
+      next(err);
+    }
+  }
+
   return Object.freeze({
     addRecipe,
     getAll,
+    getById,
   });
 }

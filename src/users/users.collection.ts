@@ -11,16 +11,11 @@ import { checkPassword, encryptPassword, outputUser } from './users.utils';
 
 export function createUsersCollection(store: UsersDataStore): UsersCollection {
   async function register(newUser: UserRegistrationData) {
-    const { email, password, firstName, lastName } =
-      validateUserRegistrationData(newUser);
-
+    const { email, password, firstName, lastName } = validateUserRegistrationData(newUser);
     // Search for existing user with the same username or e-mail addres and throw if found
     if (await store.getByEmail(email, {})) {
-      throw new DuplicationError(
-        `The e-mail address ${email} is already registerd`
-      );
+      throw new DuplicationError(`The e-mail address ${email} is already registerd`);
     }
-
     // Create the new user
     const user: User = {
       id: crypto.randomUUID(),
@@ -31,7 +26,6 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
       updatedAt: new Date(),
       password: await encryptPassword(password),
     };
-
     return outputUser(await store.create(user));
   }
 
@@ -50,10 +44,7 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
   async function getByEmail(email: string) {
     const result = await store.getByEmail(email, {});
     if (!result) {
-      throw new ApplicationError(
-        'NotFound',
-        `No user found with e-mail: ${email}`
-      );
+      throw new ApplicationError('NotFound', `No user found with e-mail: ${email}`);
     }
     return result;
   }
@@ -72,11 +63,7 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
     return await store.remove(id);
   }
 
-  async function changePassword(
-    id: string,
-    oldPassword: string,
-    newPassword: string
-  ) {
+  async function changePassword(id: string, oldPassword: string, newPassword: string) {
     const user = await store.getById(id, {});
     if (!user) {
       throw new ApplicationError('NotFound', `No user found with id: ${id}`);
@@ -96,26 +83,17 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
     try {
       ({ email, password } = validateUserCredentials(credentials));
     } catch (err) {
-      throw new ApplicationError(
-        'AuthorizationError',
-        'Incorrect username or password'
-      );
+      throw new ApplicationError('AuthorizationError', 'Incorrect username or password');
     }
     const result = await store.getByEmail(email, {});
 
     if (!result) {
-      throw new ApplicationError(
-        'AuthorizationError',
-        'Wrong username or password'
-      );
+      throw new ApplicationError('AuthorizationError', 'Wrong username or password');
     }
 
     const hashedPassword = result.password || '';
     if (!(await checkPassword(password, hashedPassword))) {
-      throw new ApplicationError(
-        'AuthorizationError',
-        'Wrong username or password'
-      );
+      throw new ApplicationError('AuthorizationError', 'Wrong username or password');
     }
 
     return outputUser(result);

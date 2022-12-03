@@ -20,19 +20,13 @@ export function api(
   const router = express.Router();
 
   router.use(cookieParser());
-  router.use(
-    bearerToken(invalidTokens, users, options.jwtSecret, options.jwtExpiresIn)
-  );
+  router.use(bearerToken(invalidTokens, users, options.jwtSecret, options.jwtExpiresIn));
   router.use(express.json());
 
   router.use('/auth', authRouter(authController(users)));
   router.use('/recipes', recipesRouter(recipesController(recipes)));
 
-  router
-    .route('*')
-    .all((req, res) =>
-      res.status(404).json({ message: 'This route does not exist' })
-    );
+  router.route('*').all((req, res) => res.status(404).json({ message: 'This route does not exist' }));
 
   router.use(errorHandler());
 

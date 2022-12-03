@@ -27,10 +27,7 @@ export function bearerToken(
 ): RequestHandler {
   return async function (req: Request, res: Response, next: NextFunction) {
     res.generateToken = (user: User) => {
-      const payload = {
-        id: user.id,
-        email: user.email,
-      };
+      const payload = { id: user.id, email: user.email };
       return jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn });
     };
 
@@ -55,9 +52,8 @@ export function bearerToken(
       }
 
       const payload = jwt.verify(token, jwtSecret) as any;
-      // Try to get the user. If this throws than don't use the token
-      await users.getById(payload.id, {});
-      req.user = payload;
+      // Try to get the user. If this throws we proceed without a user
+      req.user = await users.getByEmail(payload.email);
       req.token = token;
       return next();
     } catch (err) {

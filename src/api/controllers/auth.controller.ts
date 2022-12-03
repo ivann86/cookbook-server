@@ -15,20 +15,9 @@ export function authController(users: UsersCollection) {
   async function register(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
-      const user = await users.register({
-        email,
-        password,
-      } as UserRegistrationData);
+      const user = await users.register({ email, password } as UserRegistrationData);
       const token = res.generateToken(user);
-      res.status(201).json(
-        makeResponseBody({
-          user: {
-            id: user.id,
-            email: user.email,
-          },
-          token,
-        })
-      );
+      res.status(201).json(makeResponseBody({ user: { id: user.id, email: user.email }, token }));
     } catch (err) {
       next(err);
     }
@@ -47,15 +36,7 @@ export function authController(users: UsersCollection) {
       }
 
       // Return the user a new token or the same if it was valid already
-      res.status(200).json(
-        makeResponseBody({
-          user: {
-            id: user!.id,
-            email: user!.email,
-          },
-          token,
-        })
-      );
+      res.status(200).json(makeResponseBody({ user: { id: user!.id, email: user!.email }, token }));
     } catch (err) {
       next(err);
     }
@@ -64,10 +45,7 @@ export function authController(users: UsersCollection) {
   async function logout(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.token) {
-        throw new ApplicationError(
-          'AuthorizationError',
-          'You are not logged in'
-        );
+        throw new ApplicationError('AuthorizationError', 'You are not logged in');
       }
 
       res.blacklistToken(req.token);
@@ -77,19 +55,13 @@ export function authController(users: UsersCollection) {
     }
   }
 
-  async function getUserProfile(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
+  async function getUserProfile(req: Request, res: Response, next: NextFunction) {
     try {
       const user = await users.getById(req.user?.id!, {});
       res.status(200).json(makeResponseBody({ user }));
     } catch (err: any) {
       if (err.name && err.name === 'NotFound') {
-        return next(
-          new ApplicationError('AuthorizationError', 'You are not logged in')
-        );
+        return next(new ApplicationError('AuthorizationError', 'You are not logged in'));
       }
       next(err);
     }
