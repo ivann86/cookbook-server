@@ -9,6 +9,8 @@ const userSchema = new Schema(
     lastName: String,
   },
   { timestamps: true }
-);
+)
+  .set('toJSON', { virtuals: true })
+  .set('toObject', { virtuals: true });
 
 export const User = model<User>('User', userSchema);

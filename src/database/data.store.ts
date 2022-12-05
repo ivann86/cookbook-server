@@ -12,7 +12,7 @@ export function createDataStore<T>(model: mongoose.Model<any, any, any, any, any
   }
 
   async function getById(id: string, options: any) {
-    return (await model.findById(id)).toObject();
+    return (await model.findById(id))?.toObject();
   }
 
   async function updateOne(filter: any, update: any) {

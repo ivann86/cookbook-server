@@ -57,6 +57,7 @@ export function authController(users: UsersCollection) {
 
   async function getUserProfile(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log(req.user);
       const user = await users.getById(req.user?.id!, {});
       res.status(200).json(makeResponseBody({ user }));
     } catch (err: any) {

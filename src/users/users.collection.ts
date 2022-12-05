@@ -46,7 +46,7 @@ export function createUsersCollection(store: UsersDataStore): UsersCollection {
     if (!result) {
       throw new ApplicationError('NotFound', `No user found with e-mail: ${email}`);
     }
-    return result;
+    return outputUser(result);
   }
 
   async function update(id: string, updatedInfo: any) {
