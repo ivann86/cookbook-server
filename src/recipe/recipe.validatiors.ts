@@ -4,7 +4,8 @@ import { ValidationError } from '../errors';
 // Ingredient schema
 const ingredientSchema = Joi.object({
   name: Joi.string().trim().min(1).message('Ingredient name cannot be empty'),
-  quantity: Joi.number().positive().message('Ingredient quantity must be a positive number'),
+  // quantity: Joi.number().positive().message('Ingredient quantity must be a positive number'),
+  quantity: Joi.string(),
   units: Joi.string().trim().min(1).message('Ingredient quantity units cannot be empty'),
 }).options({ abortEarly: false, stripUnknown: { arrays: true, objects: true } });
 
