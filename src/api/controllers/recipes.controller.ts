@@ -19,7 +19,7 @@ declare global {
 }
 
 export function recipesController(recipes: RecipesCollection): RecipesController {
-  const PORT = process.env.PORT || '';
+  const PORT = process.env.ACCESS_PORT || '';
   const multerStorage = multer.memoryStorage();
   const upload = multer({ storage: multerStorage, limits: { fileSize: 2 * 1024 * 1024 } }).single('image');
 
