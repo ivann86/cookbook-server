@@ -25,6 +25,8 @@ const recipeSchema = new Schema(
   .set('toJSON', { virtuals: true })
   .set('toObject', { virtuals: true });
 
+recipeSchema.index({ owner: 1, tags: 1 });
+
 recipeSchema.pre(/find/, function (next) {
   this.populate('owner');
   next();
