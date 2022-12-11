@@ -34,7 +34,7 @@ declare global {
     getById: (id: string, options: any) => Promise<User>;
     getByEmail: (email: string) => Promise<User>;
     update: (id: string, updatedInfo: any) => Promise<User>;
-    remove: (id: string) => Promise<Boolean>;
+    remove: (id: string) => Promise<void>;
     authenticate: (credentials: UserCredentials) => Promise<User>;
   }
 }

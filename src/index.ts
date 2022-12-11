@@ -8,6 +8,13 @@ import { createRecipesCollection } from './recipe';
 import { configMongoose } from './database/config';
 import morgan from 'morgan';
 import cors from 'cors';
+import path from 'path';
+
+declare global {
+  var appRoot: string;
+}
+
+global.appRoot = path.resolve(__dirname);
 
 config();
 
@@ -22,10 +29,11 @@ const cookbookApi = api(users, recipes, invalidTokens, apiOtions);
 const app = express();
 app.use(
   cors({
-    origin: 'http://localhost:4200',
+    origin: '*',
   })
 );
 app.use(morgan('combined'));
+app.use(express.static(path.join(__dirname, 'static')));
 app.use('/api/v1/', cookbookApi);
 const server = http.createServer(app);
 

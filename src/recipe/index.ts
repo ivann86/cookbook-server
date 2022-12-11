@@ -5,6 +5,7 @@ declare global {
   interface Recipe {
     id: string;
     name: string;
+    slug: string;
     imgUrl: string;
     imgSmallUrl: string;
     description: string;
@@ -15,6 +16,7 @@ declare global {
     nationality: string;
     categories: string[];
     tags: string[];
+    owner: string | User;
   }
 
   interface Ingredient {
@@ -23,13 +25,21 @@ declare global {
     units: string;
   }
 
-  interface RecipesDataStore extends DataStore<Recipe> {}
+  interface RecipesDataStore extends DataStore<Recipe> {
+    getByName(name: string, options: any): Promise<Recipe | null>;
+    getBySlug(slug: string, options: any): Promise<Recipe | null>;
+    getTagSample(tags: string[], size: number): Promise<Recipe[]>;
+  }
 
   interface RecipesCollection {
     add: (newRecipe: Recipe) => Promise<Recipe>;
+    get: (filter: any, options: any) => Promise<Recipe[]>;
     getAll: (options: any) => Promise<Recipe[]>;
+    getTagSample(tags: string[], size: number): Promise<Recipe[]>;
     getById: (id: string, options: any) => Promise<Recipe>;
-    update: (id: string, updatedInfo: any) => Promise<Recipe>;
-    remove: (id: string) => Promise<Boolean>;
+    getBySlug: (id: string, options: any) => Promise<Recipe>;
+    update: (id: string, updatedInfo: any) => Promise<any>;
+    remove: (filter: any) => Promise<void>;
+    count: (filter: any) => Promise<number>;
   }
 }

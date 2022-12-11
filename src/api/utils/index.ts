@@ -1,1 +1,2 @@
-export { makeResponseBody } from './make-response';
+export * from './make-response';
+export * from './image.utils';
