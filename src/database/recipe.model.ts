@@ -26,6 +26,7 @@ const recipeSchema = new Schema(
   .set('toObject', { virtuals: true });
 
 recipeSchema.index({ owner: 1, tags: 1 });
+recipeSchema.index({ '$**': 'text' });
 
 recipeSchema.pre(/find/, function (next) {
   this.populate('owner');
