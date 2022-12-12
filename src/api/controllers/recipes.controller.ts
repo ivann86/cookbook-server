@@ -1,6 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import multer from 'multer';
 import slug from 'slug';
+import { ValidationError } from '../../errors';
 import { ApplicationError } from '../../errors/application.error';
 import { createNewImagesUrls, makeResponseBody, removeImages, renameImages, saveImages } from '../utils';
 import { parseStringifiedParams } from '../utils/body.utils';
@@ -38,6 +39,9 @@ export function recipesController(recipes: RecipesCollection): RecipesController
 
       res.status(201).json(makeResponseBody({ recipe: Object.assign(result, images) }));
     } catch (err) {
+      if ((err as any)?.code === 'LIMIT_FILE_SIZE') {
+        err = new ValidationError('Maximum allowed image size is 2MB');
+      }
       next(err);
     }
   }
