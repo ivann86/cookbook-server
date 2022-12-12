@@ -50,7 +50,7 @@ export function recipesController(recipes: RecipesCollection): RecipesController
     try {
       const existing = await recipes.getBySlug(req.params.slug, {});
 
-      if (existing.owner !== req.user!.id) {
+      if ((existing.owner as User).id !== req.user!.id) {
         throw new ApplicationError('AuthorizationError', 'You are not authorized to edit this recipe');
       }
 
@@ -66,6 +66,8 @@ export function recipesController(recipes: RecipesCollection): RecipesController
         images = await saveImages(body.slug, req.file);
       }
 
+      // Hack
+      existing.owner = (existing.owner as User).id;
       const updated = Object.assign({}, existing, body, images);
       await recipes.update(req.params.slug, updated);
       images = createNewImagesUrls(images, req.protocol, req.hostname, PORT);
