@@ -1,4 +1,5 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
+import { optional } from 'joi';
 import multer from 'multer';
 import slug from 'slug';
 import { ValidationError } from '../../errors';
@@ -81,6 +82,7 @@ export function recipesController(recipes: RecipesCollection): RecipesController
     try {
       let owner = (req.query.owner as string | undefined)?.trim();
       let country = (req.query.country as string | undefined)?.trim();
+      let search = (req.query.search as string | undefined)?.trim() || '';
       let tags = (req.query.tags as string | undefined)
         ?.split(',')
         .map((tag) => tag.trim())
@@ -106,8 +108,13 @@ export function recipesController(recipes: RecipesCollection): RecipesController
       }
       let page = Math.abs(+(req.query.page || 1) || 1);
       let skip = (page - 1) * limit;
-      const total = await recipes.count(filter);
-      let results = await recipes.get(filter, { limit, skip, sort });
+      const total = await recipes.count(search, filter);
+      let results;
+      if (search) {
+        results = await recipes.search(search, { limit, skip, sort });
+      } else {
+        results = await recipes.get(filter, { limit, skip, sort });
+      }
       results = results.map((recipe) => {
         const newImagesUrls = createNewImagesUrls(recipe, req.protocol, req.hostname, PORT);
         return Object.assign(recipe, newImagesUrls);
@@ -148,7 +155,7 @@ export function recipesController(recipes: RecipesCollection): RecipesController
           .map((tag) => tag.trim())
           .filter((tag) => !!tag) || [];
       const size = +(req.query.limit || 3);
-      const count = await recipes.count({});
+      const count = await recipes.count('', {});
       let results = await recipes.getTagSample(tags, size);
       results = results.map((recipe) => {
         const newImagesUrls = createNewImagesUrls(recipe, req.protocol, req.hostname, PORT);

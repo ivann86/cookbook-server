@@ -47,6 +47,11 @@ export function createRecipesCollection(store: RecipesDataStore): RecipesCollect
     return results.map((result) => validateRecipe(result));
   }
 
+  async function search(search: string, options: any) {
+    const results = await store.search(search, options);
+    return results.map((result) => validateRecipe(result));
+  }
+
   async function update(slug: string, updatedInfo: any) {
     const update: any = { slug, ...updatedInfo };
     const validatedUpdateInfo = validateRecipe(update);
@@ -58,8 +63,8 @@ export function createRecipesCollection(store: RecipesDataStore): RecipesCollect
     await store.remove(filter);
   }
 
-  async function count(filter: any) {
-    return await store.count(filter);
+  async function count(search: string, filter: any) {
+    return await store.count(search, filter);
   }
 
   return {
@@ -69,6 +74,7 @@ export function createRecipesCollection(store: RecipesDataStore): RecipesCollect
     getBySlug,
     getTagSample,
     get,
+    search,
     update,
     remove,
     count,

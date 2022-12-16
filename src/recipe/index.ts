@@ -38,8 +38,9 @@ declare global {
     getTagSample(tags: string[], size: number): Promise<Recipe[]>;
     getById: (id: string, options: any) => Promise<Recipe>;
     getBySlug: (id: string, options: any) => Promise<Recipe>;
+    search: (search: string, options: any) => Promise<Recipe[]>;
     update: (id: string, updatedInfo: any) => Promise<any>;
     remove: (filter: any) => Promise<void>;
-    count: (filter: any) => Promise<number>;
+    count: (search: string, filter: any) => Promise<number>;
   }
 }

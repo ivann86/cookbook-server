@@ -19,6 +19,10 @@ export function createDataStore<T>(model: mongoose.Model<any, any, any, any, any
     return ((await model.find(formatFilter(filter), null, options)) as any[]).map((item) => item.toObject());
   }
 
+  async function search(search: string, options: any) {
+    return ((await model.find({ $text: { $search: search } }, null, options)) as any[]).map((item) => item.toObject());
+  }
+
   async function updateOne(filter: any, update: any) {
     return await model.updateOne(formatFilter(filter), update);
   }
@@ -31,8 +35,12 @@ export function createDataStore<T>(model: mongoose.Model<any, any, any, any, any
     return await model.findOneAndRemove(formatFilter(filter));
   }
 
-  async function count(filter: any) {
-    return await model.find(formatFilter(filter)).count();
+  async function count(search: string, filter: any) {
+    if (!search) {
+      return await model.find(formatFilter(filter)).count();
+    }
+
+    return await model.find({ $text: { $search: search } }).count();
   }
 
   function formatFilter(filter: any) {
@@ -49,6 +57,7 @@ export function createDataStore<T>(model: mongoose.Model<any, any, any, any, any
     getAll,
     getById,
     get,
+    search,
     updateOne,
     updateMany,
     remove,
