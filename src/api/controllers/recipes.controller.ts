@@ -88,7 +88,7 @@ export function recipesController(recipes: RecipesCollection): RecipesController
         .map((tag) => tag.trim())
         .filter((tag) => !!tag);
       let limit = +(req.query.limit || 20) || 20;
-      if (limit < 1 || limit > 20) {
+      if (limit < 1 || limit > 60) {
         limit = 20;
       }
       const filter: any = {};
