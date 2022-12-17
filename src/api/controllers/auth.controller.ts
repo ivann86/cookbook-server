@@ -36,7 +36,7 @@ export function authController(users: UsersCollection) {
       }
 
       // Return the user a new token or the same if it was valid already
-      res.status(200).json(makeResponseBody({ user: { id: user!.id, email: user!.email }, token }));
+      res.status(200).json(makeResponseBody({ user, token }));
     } catch (err) {
       next(err);
     }
