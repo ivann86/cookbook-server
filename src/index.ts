@@ -42,7 +42,7 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use('/api', rateLimit({ windowMs: 10000, max: 30, standardHeaders: true, legacyHeaders: false }));
 
 // XSS sanitizer
-app.use(xss());
+// app.use(xss());
 
 app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'static')));
