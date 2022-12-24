@@ -28,6 +28,7 @@ const apiOtions = { jwtSecret: 'hf944s9ssaq', jwtExpiresIn: 3600 };
 const cookbookApi = api(users, recipes, invalidTokens, apiOtions);
 
 const app = express();
+app.enable('trust proxy');
 
 // CORS
 app.use(cors({ origin: '*' }));
