@@ -33,7 +33,7 @@ export function bearerToken(
 
     res.blacklistToken = async (token) => {
       try {
-        await invalidTokens.insert(token, new Date(Date.now() + jwtExpiresIn));
+        await invalidTokens.insert(token, new Date(Date.now() + jwtExpiresIn * 1000));
         return true;
       } catch (err) {
         return false;
