@@ -32,7 +32,7 @@ const app = express();
 app.enable('trust proxy');
 
 // CORS
-app.use(cors({ origin: [/\.ivanoff\.dev$/, 'cookbook-ng.ml'] }));
+app.use(cors({ origin: [/\.ivanoff\.dev$/, /cookbook-ng\.ml$/] }));
 
 // Helmet ()
 // app.use(helmet());
