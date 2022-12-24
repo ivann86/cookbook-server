@@ -34,7 +34,7 @@ app.enable('trust proxy');
 app.use(cors({ origin: '*' }));
 
 // Rate limit on api requests
-app.use('/api', rateLimit({ windowMs: 1000, max: 10, standardHeaders: true, legacyHeaders: false }));
+app.use('/api', rateLimit({ windowMs: 10000, max: 30, standardHeaders: true, legacyHeaders: false }));
 
 app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'static')));
