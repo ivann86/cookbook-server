@@ -1,17 +1,26 @@
+import { ApplicationError } from '../errors/application.error';
+import { Token } from './token.model';
+
 export function createInvalidTokensStore(): InvalidTokensStore {
   const store: { token: string; expireAt: Date }[] = [];
 
-  function insert(token: string, expireAt: Date) {
-    store.push({ token, expireAt });
-    return Promise.resolve();
+  async function insert(token: string, expireAt: Date) {
+    try {
+      await Token.create({ token, expireAt });
+    } catch (err) {
+      throw new ApplicationError('DatabaseError', 'Could not create token document');
+    }
   }
 
-  function check(token: string) {
-    const result = store.find((item) => item.token === token);
-    if (result) {
-      return Promise.resolve(true);
+  async function check(token: string) {
+    try {
+      if (await Token.findOne({ token })) {
+        return true;
+      }
+      return false;
+    } catch (err) {
+      throw new ApplicationError('DatabaseError', 'Could not perform token search');
     }
-    return Promise.resolve(false);
   }
 
   return Object.freeze({
