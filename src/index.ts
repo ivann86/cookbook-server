@@ -31,11 +31,11 @@ const cookbookApi = api(users, recipes, invalidTokens, apiOtions);
 const app = express();
 app.enable('trust proxy');
 
-// Helmet ()
-app.use(helmet());
-
 // CORS
-app.use(cors({ origin: ['*.ivanoff.dev', 'cookbook-ng.ml'] }));
+app.use(cors({ origin: [/\.ivanoff\.dev$/, 'cookbook-ng.ml'] }));
+
+// Helmet ()
+// app.use(helmet());
 
 // Rate limit on api requests
 app.use('/api', rateLimit({ windowMs: 10000, max: 30, standardHeaders: true, legacyHeaders: false }));
