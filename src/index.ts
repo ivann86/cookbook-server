@@ -1,3 +1,4 @@
+import path from 'path';
 import http from 'http';
 import express from 'express';
 import { config } from 'dotenv';
@@ -9,7 +10,7 @@ import { configMongoose } from './database/config';
 import morgan from 'morgan';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
-import path from 'path';
+import helmet from 'helmet';
 
 declare global {
   var appRoot: string;
@@ -30,8 +31,11 @@ const cookbookApi = api(users, recipes, invalidTokens, apiOtions);
 const app = express();
 app.enable('trust proxy');
 
+// Helmet ()
+app.use(helmet());
+
 // CORS
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: ['*.ivanoff.dev', 'cookbook-ng.ml'] }));
 
 // Rate limit on api requests
 app.use('/api', rateLimit({ windowMs: 10000, max: 30, standardHeaders: true, legacyHeaders: false }));
