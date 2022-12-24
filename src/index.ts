@@ -8,6 +8,7 @@ import { createRecipesCollection } from './recipe';
 import { configMongoose } from './database/config';
 import morgan from 'morgan';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import path from 'path';
 
 declare global {
@@ -27,11 +28,13 @@ const apiOtions = { jwtSecret: 'hf944s9ssaq', jwtExpiresIn: 3600 };
 const cookbookApi = api(users, recipes, invalidTokens, apiOtions);
 
 const app = express();
-app.use(
-  cors({
-    origin: '*',
-  })
-);
+
+// CORS
+app.use(cors({ origin: '*' }));
+
+// Rate limit on api requests
+app.use('/api', rateLimit({ windowMs: 1000, max: 10, standardHeaders: true, legacyHeaders: false }));
+
 app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'static')));
 app.use('/api/v1/', cookbookApi);
