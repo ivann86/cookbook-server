@@ -11,7 +11,6 @@ import morgan from 'morgan';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import xss from 'xss-clean';
 
 declare global {
   var appRoot: string;
@@ -40,9 +39,6 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 // Rate limit on api requests
 app.use('/api', rateLimit({ windowMs: 10000, max: 30, standardHeaders: true, legacyHeaders: false }));
-
-// XSS sanitizer
-// app.use(xss());
 
 app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'static')));

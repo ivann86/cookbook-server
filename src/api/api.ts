@@ -3,7 +3,7 @@ import cookieParser from 'cookie-parser';
 import { authController, recipesController } from './controllers';
 import { authRouter, recipesRouter } from './routers';
 import { bearerToken, errorHandler } from './middlewares';
-import exp from 'constants';
+import xss from 'xss-clean';
 
 declare global {
   interface ApiOptions {
@@ -24,6 +24,7 @@ export function api(
   router.use(bearerToken(invalidTokens, users, options.jwtSecret, options.jwtExpiresIn));
   router.use(express.json());
   router.use(express.urlencoded({ extended: true }));
+  router.use(xss());
 
   router.use('/auth', authRouter(authController(users)));
   router.use('/recipes', recipesRouter(recipesController(recipes)));
