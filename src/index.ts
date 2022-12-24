@@ -1,7 +1,9 @@
+import { config } from 'dotenv';
+config();
+
 import path from 'path';
 import http from 'http';
 import express from 'express';
-import { config } from 'dotenv';
 import { api } from './api';
 import { createUsersCollection } from './users';
 import { createInvalidTokensStore, createRecipeStore, createUserStore } from './database';
@@ -17,8 +19,6 @@ declare global {
 }
 
 global.appRoot = path.resolve(__dirname);
-
-config();
 
 const PORT = process.env.PORT || 3000;
 

@@ -1,10 +1,9 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
-import { optional } from 'joi';
 import multer from 'multer';
 import slug from 'slug';
 import { ValidationError } from '../../errors';
 import { ApplicationError } from '../../errors/application.error';
-import { createNewImagesUrls, makeResponseBody, removeImages, renameImages, saveImages } from '../utils';
+import { createNewImagesUrls, makeResponseBody, removeImages, saveImages } from '../utils';
 import { parseStringifiedParams } from '../utils/body.utils';
 
 declare global {
@@ -59,10 +58,6 @@ export function recipesController(recipes: RecipesCollection): RecipesController
       body.slug = slug(body.name || '') || req.params.slug;
       let images = { imgUrl: body.imgUrl, imgSmallUrl: body.imgSmallUrl || body.imgUrl };
 
-      if (body.slug !== existing.slug) {
-        images = await renameImages(existing.slug, body.slug);
-      }
-
       if (req.file) {
         images = await saveImages(body.slug, req.file);
       }
@@ -115,10 +110,7 @@ export function recipesController(recipes: RecipesCollection): RecipesController
       } else {
         results = await recipes.get(filter, { limit, skip, sort });
       }
-      results = results.map((recipe) => {
-        const newImagesUrls = createNewImagesUrls(recipe, req.protocol, req.hostname, PORT);
-        return Object.assign(recipe, newImagesUrls);
-      });
+
       res.status(200).json(makeResponseBody({ total, limit, page, count: results.length, items: results }));
     } catch (err) {
       next(err);
@@ -127,9 +119,7 @@ export function recipesController(recipes: RecipesCollection): RecipesController
 
   async function getById(req: Request, res: Response, next: NextFunction) {
     try {
-      let recipe = await recipes.getById(req.params.id, {});
-      const newImagesUrls = createNewImagesUrls(recipe, req.protocol, req.hostname, PORT);
-      recipe = Object.assign(recipe, newImagesUrls);
+      const recipe = await recipes.getById(req.params.id, {});
       res.status(200).json(makeResponseBody({ recipe }));
     } catch (err) {
       next(err);
@@ -138,9 +128,7 @@ export function recipesController(recipes: RecipesCollection): RecipesController
 
   async function getBySlug(req: Request, res: Response, next: NextFunction) {
     try {
-      let recipe = await recipes.getBySlug(req.params.slug, {});
-      const newImagesUrls = createNewImagesUrls(recipe, req.protocol, req.hostname, PORT);
-      recipe = Object.assign(recipe, newImagesUrls);
+      const recipe = await recipes.getBySlug(req.params.slug, {});
       res.status(200).json(makeResponseBody({ recipe }));
     } catch (err) {
       next(err);
@@ -156,11 +144,7 @@ export function recipesController(recipes: RecipesCollection): RecipesController
           .filter((tag) => !!tag) || [];
       const size = +(req.query.limit || 3);
       const count = await recipes.count('', {});
-      let results = await recipes.getTagSample(tags, size);
-      results = results.map((recipe) => {
-        const newImagesUrls = createNewImagesUrls(recipe, req.protocol, req.hostname, PORT);
-        return Object.assign(recipe, newImagesUrls);
-      });
+      const results = await recipes.getTagSample(tags, size);
       res.status(200).json(makeResponseBody({ total: count, count: size, items: results }));
     } catch (err) {
       next(err);
@@ -176,7 +160,7 @@ export function recipesController(recipes: RecipesCollection): RecipesController
       }
 
       await recipes.remove({ slug: recipe.slug });
-      await removeImages(recipe.slug);
+      await removeImages(recipe.imgUrl);
       res.status(200).json(makeResponseBody({}));
     } catch (err) {
       next(err);
