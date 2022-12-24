@@ -3,7 +3,7 @@ import multer from 'multer';
 import slug from 'slug';
 import { ValidationError } from '../../errors';
 import { ApplicationError } from '../../errors/application.error';
-import { createNewImagesUrls, makeResponseBody, removeImages, saveImages } from '../utils';
+import { makeResponseBody, removeImages, saveImages } from '../utils';
 import { parseStringifiedParams } from '../utils/body.utils';
 
 declare global {
@@ -35,7 +35,6 @@ export function recipesController(recipes: RecipesCollection): RecipesController
       }
 
       const result = await recipes.add(Object.assign({}, body, { slug: nameSlug, owner: req.user?.id }, images));
-      images = createNewImagesUrls(images, req.protocol, req.hostname, PORT);
 
       res.status(201).json(makeResponseBody({ recipe: Object.assign(result, images) }));
     } catch (err) {
@@ -66,7 +65,6 @@ export function recipesController(recipes: RecipesCollection): RecipesController
       existing.owner = (existing.owner as User).id;
       const updated = Object.assign({}, existing, body, images);
       await recipes.update(req.params.slug, updated);
-      images = createNewImagesUrls(images, req.protocol, req.hostname, PORT);
       res.status(201).json(makeResponseBody({ recipe: updated }));
     } catch (err) {
       next(err);

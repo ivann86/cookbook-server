@@ -9,22 +9,6 @@ const imageKit = new ImageKit({
   urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT || '',
 });
 
-export function createNewImagesUrls(
-  { imgUrl, imgSmallUrl }: { imgUrl: string; imgSmallUrl: string },
-  protocol: string,
-  hostname: string,
-  port: string
-) {
-  if (imgUrl && !/https?:/.test(imgUrl)) {
-    imgUrl = new URL(`${protocol}://${hostname}:${port}/images/${path.basename(imgUrl)}`).href;
-  }
-  if (imgSmallUrl && !/https?:/.test(imgSmallUrl)) {
-    imgSmallUrl = new URL(`${protocol}://${hostname}:${port}/images/${path.basename(imgSmallUrl)}`).href;
-  }
-
-  return { imgUrl, imgSmallUrl };
-}
-
 export async function saveImages(filename: string, file: Express.Multer.File) {
   try {
     const ext = '.' + mime.getExtension(file.mimetype);
