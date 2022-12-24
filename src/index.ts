@@ -35,7 +35,7 @@ app.enable('trust proxy');
 app.use(cors({ origin: [/\.ivanoff\.dev$/, /cookbook-ng\.ml$/] }));
 
 // Helmet ()
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 // Rate limit on api requests
 app.use('/api', rateLimit({ windowMs: 10000, max: 30, standardHeaders: true, legacyHeaders: false }));
