@@ -2,8 +2,6 @@ import { ApplicationError } from '../errors/application.error';
 import { Token } from './token.model';
 
 export function createInvalidTokensStore(): InvalidTokensStore {
-  const store: { token: string; expireAt: Date }[] = [];
-
   async function insert(token: string, expireAt: Date) {
     try {
       await Token.create({ token, expireAt });

@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose';
-import { token } from 'morgan';
 
 const tokenSchema = new Schema(
   {
