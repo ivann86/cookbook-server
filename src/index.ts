@@ -45,8 +45,10 @@ app.use(express.static(path.join(__dirname, 'static')));
 app.use('/api/v1/', cookbookApi);
 const server = http.createServer(app);
 
-configMongoose(process.env.MONGODB_CONNECTION_STRING!, undefined);
+const dbConnection = configMongoose(process.env.MONGODB_CONNECTION_STRING!, undefined);
 
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}...`);
 });
+
+export { app, dbConnection };
